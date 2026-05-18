@@ -256,19 +256,23 @@ function countSolutions(rows, cols, numbers) {
  */
 export function generateShikakuPuzzle(rows, cols, minArea = 2, maxArea = 16, splitProbability = 0.7) {
   let attempts = 0;
-  const maxAttempts = 100;
+  const maxAttempts = 1000;
+  let fallbackPuzzle = null;
 
   while (attempts < maxAttempts) {
     attempts++;
     const slices = generateSlices(rows, cols, minArea, maxArea, splitProbability);
     
-    // Post-generation validation to strictly filter out any 7s, 14s or full-spanning strips
-    const hasForbiddenSlice = slices.some(slice => 
-      slice.w * slice.h === 7 || 
-      slice.w * slice.h === 14 || 
-      (slice.w === cols && slice.h === 1) || 
-      (slice.h === rows && slice.w === 1)
-    );
+    // Stricter filtering in early attempts; gradually relax if we get stuck
+    const checkForbidden = attempts < 300;
+    const checkSpanning = attempts < 150;
+
+    const hasForbiddenSlice = slices.some(slice => {
+      const area = slice.w * slice.h;
+      if (checkForbidden && (area === 7 || area === 14)) return true;
+      if (checkSpanning && ((slice.w === cols && slice.h === 1) || (slice.h === rows && slice.w === 1))) return true;
+      return false;
+    });
 
     if (hasForbiddenSlice) {
       continue;
@@ -297,14 +301,31 @@ export function generateShikakuPuzzle(rows, cols, minArea = 2, maxArea = 16, spl
         numbers
       };
     }
+
+    // Keep track of any valid partition with unique solution as a backup, just in case
+    if (solutions === 1 && !fallbackPuzzle) {
+      fallbackPuzzle = {
+        gridSize: { rows, cols },
+        numbers
+      };
+    }
   }
 
-  // Fallback: If we exceed max attempts, generate a very simple grid
-  // (Should rarely happen since generating slices is fast and usually yields unique solutions)
+  // If we really exhausted 1000 attempts without satisfying relaxed constraints,
+  // return the backup fallback puzzle if it exists
+  if (fallbackPuzzle) {
+    return fallbackPuzzle;
+  }
+
+  // Ultimate fallback: split the grid in half rather than single area
+  const midCol = Math.floor(cols / 2);
+  const leftArea = midCol * rows;
+  const rightArea = (cols - midCol) * rows;
   return {
     gridSize: { rows, cols },
     numbers: [
-      { x: 0, y: 0, value: rows * cols }
+      { x: Math.floor(midCol / 2), y: Math.floor(rows / 2), value: leftArea },
+      { x: midCol + Math.floor((cols - midCol) / 2), y: Math.floor(rows / 2), value: rightArea }
     ]
   };
 }

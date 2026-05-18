@@ -86,6 +86,31 @@ const getCachedDominoTileStyles = (rect, cols, rows) => {
   return styles;
 };
 
+const CommittedRectangles = React.memo(function CommittedRectangles({ rectStates, cols, rows, removeRectangle }) {
+  return (
+    <>
+      {rectStates.map(({ rect, state }) => {
+        const styles = getCachedDominoTileStyles(rect, cols, rows);
+        
+        return (
+          <div
+            key={rect.id}
+            className={`completed-rect-overlay ${
+              state === 'satisfied' ? 'rect-state-valid' : 
+              state === 'error' ? 'rect-state-error' : 'rect-state-neutral'
+            }`}
+            style={styles}
+            onClick={(e) => {
+              e.stopPropagation();
+              removeRectangle(rect.id);
+            }}
+          />
+        );
+      })}
+    </>
+  );
+});
+
 export default function ShikakuGrid() {
   const currentLevel = useGameStore(state => state.currentLevel);
   const rectangles = useGameStore(state => state.rectangles);
@@ -429,24 +454,12 @@ export default function ShikakuGrid() {
         </div>
 
         {/* Render committed rectangles as overlays */}
-        {rectStates.map(({ rect, state }) => {
-          const styles = getCachedDominoTileStyles(rect, cols, rows);
-          
-          return (
-            <div
-              key={rect.id}
-              className={`completed-rect-overlay ${
-                state === 'satisfied' ? 'rect-state-valid' : 
-                state === 'error' ? 'rect-state-error' : 'rect-state-neutral'
-              }`}
-              style={styles}
-              onClick={(e) => {
-                e.stopPropagation();
-                removeRectangle(rect.id);
-              }}
-            />
-          );
-        })}
+        <CommittedRectangles 
+          rectStates={rectStates} 
+          cols={cols} 
+          rows={rows} 
+          removeRectangle={removeRectangle} 
+        />
 
         {/* Render active touch draw boundary */}
         {activeDrawRect && (
