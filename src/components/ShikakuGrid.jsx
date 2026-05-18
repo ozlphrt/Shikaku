@@ -199,10 +199,10 @@ const ClueNumbersOverlay = React.memo(function ClueNumbersOverlay({ numbers, col
               style={colorByNumber ? {
                 color: clueColor,
                 fontWeight: 900,
-                textShadow: `0 3px 6px rgba(0, 0, 0, 0.85), 0 6px 12px rgba(0, 0, 0, 0.6)`,
+                textShadow: `0 4px 10px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.3)`,
               } : {
                 fontWeight: 900,
-                textShadow: `0 3px 6px rgba(0, 0, 0, 0.85), 0 6px 12px rgba(0, 0, 0, 0.6)`,
+                textShadow: `0 4px 10px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.3)`,
               }}
             >
               {number.value}
