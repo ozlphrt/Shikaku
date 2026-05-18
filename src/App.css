@@ -367,7 +367,7 @@ body.light-theme {
 
 /* Number styles inside cells - modern glowing cyber readout */
 .cell-number-container {
-  font-size: clamp(12px, calc(300px / var(--grid-cols)), 36px);
+  font-size: clamp(11px, calc(270px / var(--grid-cols)), 32px);
   font-weight: 900;
   color: var(--number-color);
   -webkit-text-stroke: 1.5px var(--number-outline-color, rgba(0, 0, 0, 0.95));
