@@ -98,6 +98,9 @@ export default function ShikakuGrid() {
   const removeRectangle = useGameStore(state => state.removeRectangle);
 
   const gridRef = useRef(null);
+  const cachedGridRectRef = useRef(null);
+  const isFramePendingRef = useRef(false);
+  const pendingCoordsRef = useRef(null);
 
   // Prevent elastic scrolling/bounce on iOS Safari while drawing/dragging
   useEffect(() => {
@@ -129,12 +132,18 @@ export default function ShikakuGrid() {
   const { rows, cols } = currentLevel.gridSize;
   const { numbers } = currentLevel;
 
+  const updateCachedGridRect = () => {
+    const gridEl = gridRef.current?.querySelector('.shikaku-grid-element');
+    if (gridEl) {
+      cachedGridRectRef.current = gridEl.getBoundingClientRect();
+    }
+  };
+
   // Helper to find the row/col coordinates from a screen touch event
   const getGridCoordsFromTouch = (touch) => {
-    const gridEl = document.querySelector('.shikaku-grid-element');
-    if (!gridEl) return null;
+    const rect = cachedGridRectRef.current;
+    if (!rect) return null;
     
-    const rect = gridEl.getBoundingClientRect();
     const touchX = touch.clientX - rect.left;
     const touchY = touch.clientY - rect.top;
     
@@ -144,14 +153,80 @@ export default function ShikakuGrid() {
     const x = Math.floor(touchX / cellWidth);
     const y = Math.floor(touchY / cellHeight);
     
-    if (x >= 0 && x < cols && y >= 0 && y < rows) {
-      return { x, y };
+    // Clamp coordinates to keep drag inside board boundaries safely
+    const clampedX = Math.max(0, Math.min(cols - 1, x));
+    const clampedY = Math.max(0, Math.min(rows - 1, y));
+    
+    return { x: clampedX, y: clampedY };
+  };
+
+  // Snaps touch drag targets directly to the valid factor layouts of the starting number cell
+  const updateDrawSnapped = (targetX, targetY) => {
+    if (!activeDraw) return;
+    const { startX, startY } = activeDraw;
+    
+    // Find the starting cell's number
+    const startNumber = numbers.find(n => n.x === startX && n.y === startY);
+    if (!startNumber) {
+      updateDraw(targetX, targetY);
+      return;
     }
-    return null;
+
+    const V = startNumber.value;
+    const dx = targetX - startX;
+    const dy = targetY - startY;
+    const rawW = Math.abs(dx) + 1;
+    const rawH = Math.abs(dy) + 1;
+
+    // If the finger hasn't swiped away from the start cell, don't snap yet
+    if (rawW === 1 && rawH === 1) {
+      updateDraw(targetX, targetY);
+      return;
+    }
+
+    // Precompute valid factors of V
+    const pairs = [];
+    for (let w = 1; w <= V; w++) {
+      if (V % w === 0) {
+        pairs.push({ w, h: V / w });
+      }
+    }
+
+    const signX = dx >= 0 ? 1 : -1;
+    const signY = dy >= 0 ? 1 : -1;
+
+    // Filter factors that fit completely inside board boundary
+    let playablePairs = pairs.filter(({ w, h }) => {
+      const endX = startX + (w - 1) * signX;
+      const endY = startY + (h - 1) * signY;
+      return endX >= 0 && endX < cols && endY >= 0 && endY < rows;
+    });
+
+    if (playablePairs.length === 0) {
+      playablePairs = pairs;
+    }
+
+    // Pick factor pair with minimum squared Euclidean distance to user's swipe size
+    let bestPair = playablePairs[0];
+    let minDistance = Infinity;
+
+    for (const pair of playablePairs) {
+      const dist = Math.pow(rawW - pair.w, 2) + Math.pow(rawH - pair.h, 2);
+      if (dist < minDistance) {
+        minDistance = dist;
+        bestPair = pair;
+      }
+    }
+
+    const snappedX = startX + (bestPair.w - 1) * signX;
+    const snappedY = startY + (bestPair.h - 1) * signY;
+
+    updateDraw(snappedX, snappedY);
   };
 
   // Touch handlers to track cell under drag finger
   const handleTouchStart = (e) => {
+    updateCachedGridRect();
     const touch = e.touches[0];
     const coords = getGridCoordsFromTouch(touch);
     if (coords) {
@@ -164,7 +239,16 @@ export default function ShikakuGrid() {
     const touch = e.touches[0];
     const coords = getGridCoordsFromTouch(touch);
     if (coords) {
-      updateDraw(coords.x, coords.y);
+      pendingCoordsRef.current = coords;
+      if (!isFramePendingRef.current) {
+        isFramePendingRef.current = true;
+        requestAnimationFrame(() => {
+          isFramePendingRef.current = false;
+          if (pendingCoordsRef.current) {
+            updateDrawSnapped(pendingCoordsRef.current.x, pendingCoordsRef.current.y);
+          }
+        });
+      }
     }
   };
 
@@ -176,6 +260,7 @@ export default function ShikakuGrid() {
 
   // Mouse handlers (Event Delegation on the Grid wrapper)
   const handleMouseDown = (e) => {
+    updateCachedGridRect();
     const cell = e.target.closest('.shikaku-cell');
     if (cell) {
       const x = parseInt(cell.dataset.x, 10);
@@ -190,7 +275,17 @@ export default function ShikakuGrid() {
     if (cell) {
       const x = parseInt(cell.dataset.x, 10);
       const y = parseInt(cell.dataset.y, 10);
-      updateDraw(x, y);
+      
+      pendingCoordsRef.current = { x, y };
+      if (!isFramePendingRef.current) {
+        isFramePendingRef.current = true;
+        requestAnimationFrame(() => {
+          isFramePendingRef.current = false;
+          if (pendingCoordsRef.current) {
+            updateDrawSnapped(pendingCoordsRef.current.x, pendingCoordsRef.current.y);
+          }
+        });
+      }
     }
   };
 
