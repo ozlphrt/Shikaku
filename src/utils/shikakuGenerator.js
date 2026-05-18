@@ -31,10 +31,10 @@ function generateSlices(rows, cols, minArea = 2, maxArea = 16, splitProbability 
       shouldSplit = true;
     }
 
-    // AVOID 7s & FULL-SPANNING STRIPS (e.g. 1x7, 7x1, 1xcols or rowsx1)
-    // Area 7 has only 1x7 and 7x1 configurations which split the board and oversimplify logic.
+    // AVOID 7s, 14s & FULL-SPANNING STRIPS (e.g. 1x7, 7x1, 2x7, 7x2, 1xcols or rowsx1)
+    // Area 7 and 14 configurations are excessively long, splitting the board and oversimplifying logic.
     // Also block any slice that spans the full width/height in a single line (cutting the board in half).
-    if (area === 7 || (rect.w === cols && rect.h === 1) || (rect.h === rows && rect.w === 1)) {
+    if (area === 7 || area === 14 || (rect.w === cols && rect.h === 1) || (rect.h === rows && rect.w === 1)) {
       shouldSplit = true;
     }
 
@@ -262,9 +262,10 @@ export function generateShikakuPuzzle(rows, cols, minArea = 2, maxArea = 16, spl
     attempts++;
     const slices = generateSlices(rows, cols, minArea, maxArea, splitProbability);
     
-    // Post-generation validation to strictly filter out any 7s or full-spanning strips
+    // Post-generation validation to strictly filter out any 7s, 14s or full-spanning strips
     const hasForbiddenSlice = slices.some(slice => 
       slice.w * slice.h === 7 || 
+      slice.w * slice.h === 14 || 
       (slice.w === cols && slice.h === 1) || 
       (slice.h === rows && slice.w === 1)
     );
