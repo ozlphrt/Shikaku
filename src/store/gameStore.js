@@ -74,34 +74,61 @@ const loadLevelNumberFromStorage = () => {
   return 1;
 };
 
+// Grid size scaling based on level number
+const getSizeForLevel = (levelNum) => {
+  if (levelNum <= 3) return 5;
+  if (levelNum <= 7) return 6;
+  if (levelNum <= 12) return 7;
+  if (levelNum <= 18) return 8;
+  if (levelNum <= 24) return 9;
+  if (levelNum <= 32) return 10;
+  if (levelNum <= 42) return 11;
+  return 12; // Level 43+ is 12x12
+};
+
 // Difficulty scaling helper
 const getDifficultyForLevel = (levelNum) => {
+  const size = getSizeForLevel(levelNum);
   let minArea = 2;
   let maxArea = 16;
-  let splitProb = 0.7;
+  let splitProb = 0.75;
 
-  if (levelNum <= 2) {
+  if (size <= 5) {
     minArea = 2;
     maxArea = 6;
     splitProb = 0.85;
-  } else if (levelNum <= 4) {
+  } else if (size === 6) {
     minArea = 2;
     maxArea = 8;
     splitProb = 0.80;
-  } else if (levelNum <= 6) {
+  } else if (size === 7) {
     minArea = 3;
     maxArea = 10;
     splitProb = 0.75;
-  } else if (levelNum <= 8) {
+  } else if (size === 8) {
+    minArea = 3;
+    maxArea = 12;
+    splitProb = 0.72;
+  } else if (size === 9) {
     minArea = 4;
-    maxArea = 10;
-    splitProb = 0.75;
+    maxArea = 14;
+    splitProb = 0.70;
+  } else if (size === 10) {
+    minArea = 4;
+    maxArea = 16;
+    splitProb = 0.68;
+  } else if (size === 11) {
+    minArea = 4;
+    maxArea = 18;
+    splitProb = 0.66;
   } else {
-    minArea = 4;
-    maxArea = 9;
-    splitProb = 0.80;
+    // 12x12
+    minArea = 5;
+    maxArea = 20;
+    splitProb = 0.65;
   }
-  return { minArea, maxArea, splitProb };
+
+  return { minArea, maxArea, splitProb, size };
 };
 
 // Helper: Save current session from store getters
@@ -136,9 +163,9 @@ if (savedSession) {
 } else {
   // Generate fresh starting level for savedLevelNum
   const diff = getDifficultyForLevel(savedLevelNum);
-  const initialPuzzle = generateShikakuPuzzle(7, 7, diff.minArea, diff.maxArea, diff.splitProb);
+  const initialPuzzle = generateShikakuPuzzle(diff.size, diff.size, diff.minArea, diff.maxArea, diff.splitProb);
   initialLevel = {
-    id: `endless_7_${Date.now()}`,
+    id: `endless_${diff.size}_${Date.now()}`,
     name: `Level ${savedLevelNum}`,
     gridSize: initialPuzzle.gridSize,
     numbers: initialPuzzle.numbers,
@@ -225,7 +252,7 @@ export const useGameStore = create((set, get) => ({
   })(),
   isSettingsOpen: false,
   levelNumber: initialLevelNumber, // Track saved sequential level progression
-  appVersion: '1.7.0',
+  appVersion: '1.8.0',
   updateAvailable: false,
 
   checkAppVersion: async () => {
@@ -360,8 +387,8 @@ export const useGameStore = create((set, get) => ({
   // Load an Endless Mode / Custom Level
   loadEndlessLevel: (size) => {
     const nextLevelNum = get().levelNumber + 1;
-    const targetSize = size || 7;
     const diff = getDifficultyForLevel(nextLevelNum);
+    const targetSize = size || diff.size;
 
     const puzzle = generateShikakuPuzzle(targetSize, targetSize, diff.minArea, diff.maxArea, diff.splitProb);
     const level = {
