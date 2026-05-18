@@ -196,14 +196,7 @@ const ClueNumbersOverlay = React.memo(function ClueNumbersOverlay({ numbers, col
               } ${
                 isError ? 'cell-number-error shake-error' : ''
               }`}
-              style={colorByNumber ? {
-                color: clueColor,
-                fontWeight: 900,
-                textShadow: `0 4px 10px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.3)`,
-              } : {
-                fontWeight: 900,
-                textShadow: `0 4px 10px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.3)`,
-              }}
+              style={colorByNumber ? { color: clueColor } : {}}
             >
               {number.value}
             </div>
