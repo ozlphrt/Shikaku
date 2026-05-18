@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
-import { X, Sun, Moon, Volume2, VolumeX, HelpCircle, Paintbrush } from 'lucide-react';
+import { X, Sun, Moon, Volume2, VolumeX, HelpCircle, Paintbrush, RotateCcw } from 'lucide-react';
 
 const PALETTES = [
   { id: 'obsidian', name: 'Graphite Steel', colors: ['#1e2024', '#9ba3af'] },
@@ -32,88 +32,97 @@ export default function SettingsModal({ isOpen, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose} style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+      background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000
     }}>
-      <div className="glass-panel" onClick={e => e.stopPropagation()} style={{
-        width: '90%', maxWidth: '360px', padding: '24px', borderRadius: '24px',
-        display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative'
+      <div className="glass-panel settings-modal-card" onClick={e => e.stopPropagation()} style={{
+        width: '90%', maxWidth: '360px', padding: '20px', borderRadius: '24px',
+        display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative',
+        maxHeight: '85vh', overflowY: 'auto'
       }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>Settings</h2>
-          <button className="glass-button glass-button-icon" onClick={onClose} style={{ padding: '6px' }}>
-            <X size={20} />
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--glass-border)', paddingBottom: '12px' }}>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Settings</h2>
+          <button className="glass-button glass-button-icon" onClick={onClose} style={{ padding: '6px', borderRadius: '50%' }}>
+            <X size={18} />
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-secondary)' }}>Appearance</div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button 
-              onClick={() => { if(theme !== 'dark') toggleTheme() }}
-              className={`glass-button ${theme === 'dark' ? 'active' : ''}`}
-              style={{ flex: 1, padding: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: theme === 'dark' ? 'var(--theme-accent-glow)' : '', borderColor: theme === 'dark' ? 'var(--theme-accent)' : '' }}
-            >
-              <Moon size={20} />
-              <span style={{ fontSize: '14px' }}>Dark</span>
-            </button>
-            <button 
-              onClick={() => { if(theme !== 'light') toggleTheme() }}
-              className={`glass-button ${theme === 'light' ? 'active' : ''}`}
-              style={{ flex: 1, padding: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: theme === 'light' ? 'var(--theme-accent-glow)' : '', borderColor: theme === 'light' ? 'var(--theme-accent)' : '' }}
-            >
-              <Sun size={20} />
-              <span style={{ fontSize: '14px' }}>Light</span>
-            </button>
+        {/* Toggles Container */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          
+          {/* Dark Mode Switch */}
+          <div className="settings-row">
+            <div className="settings-label-group">
+              <div className="settings-icon-wrapper">
+                {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+              </div>
+              <span className="settings-label-title">Dark Mode</span>
+            </div>
+            <label className="switch-control">
+              <input 
+                type="checkbox" 
+                checked={theme === 'dark'} 
+                onChange={toggleTheme} 
+              />
+              <span className="switch-slider"></span>
+            </label>
           </div>
+
+          {/* Sound Switch */}
+          <div className="settings-row">
+            <div className="settings-label-group">
+              <div className="settings-icon-wrapper">
+                {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+              </div>
+              <span className="settings-label-title">Sound Effects</span>
+            </div>
+            <label className="switch-control">
+              <input 
+                type="checkbox" 
+                checked={soundEnabled} 
+                onChange={toggleSound} 
+              />
+              <span className="switch-slider"></span>
+            </label>
+          </div>
+
+          {/* Color by Number Switch */}
+          <div className="settings-row">
+            <div className="settings-label-group">
+              <div className="settings-icon-wrapper">
+                <Paintbrush size={16} />
+              </div>
+              <span className="settings-label-title">Color by Number</span>
+            </div>
+            <label className="switch-control">
+              <input 
+                type="checkbox" 
+                checked={colorByNumber} 
+                onChange={toggleColorByNumber} 
+              />
+              <span className="switch-slider"></span>
+            </label>
+          </div>
+
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-secondary)' }}>Sound Effects</div>
-          <div style={{ display: 'flex', gap: '12px' }}>
+        {/* Action Controls Section */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--glass-border)', paddingTop: '12px' }}>
+          <div style={{ fontWeight: 700, fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Quick Actions</div>
+          <div style={{ display: 'flex', gap: '8px' }}>
             <button 
-              onClick={toggleSound}
-              className={`glass-button ${soundEnabled ? 'active' : ''}`}
-              style={{ flex: 1, padding: '12.5px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', background: soundEnabled ? 'var(--theme-accent-glow)' : '', borderColor: soundEnabled ? 'var(--theme-accent)' : '' }}
-            >
-              {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-              <span style={{ fontSize: '14px', fontWeight: 600 }}>{soundEnabled ? 'Sound On' : 'Sound Off'}</span>
-            </button>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-secondary)' }}>Color Settings</div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button 
-              onClick={toggleColorByNumber}
-              className={`glass-button ${colorByNumber ? 'active' : ''}`}
-              style={{ flex: 1, padding: '12.5px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', background: colorByNumber ? 'var(--theme-accent-glow)' : '', borderColor: colorByNumber ? 'var(--theme-accent)' : '' }}
-            >
-              <Paintbrush size={18} style={{ color: colorByNumber ? 'var(--theme-accent)' : 'currentColor' }} />
-              <span style={{ fontSize: '14px', fontWeight: 600 }}>{colorByNumber ? 'Color by Number: On' : 'Color by Number: Off'}</span>
-            </button>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-secondary)' }}>Guide</div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button 
-              onClick={resetTutorial}
+              onClick={() => {
+                onClose();
+                resetTutorial();
+              }}
               className="glass-button"
-              style={{ flex: 1, padding: '12.5px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              style={{ flex: 1, padding: '10px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', borderRadius: '12px' }}
             >
-              <HelpCircle size={18} />
-              <span style={{ fontSize: '14px', fontWeight: 600 }}>Replay Tutorial</span>
+              <HelpCircle size={16} />
+              <span>How to Play</span>
             </button>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-secondary)' }}>Reset Progress</div>
-          <div style={{ display: 'flex', gap: '12px' }}>
             <button 
               onClick={() => {
                 if (window.confirm("Are you sure you want to reset your endless mode progress back to Level 1?")) {
@@ -123,46 +132,49 @@ export default function SettingsModal({ isOpen, onClose }) {
               className="glass-button"
               style={{ 
                 flex: 1, 
-                padding: '12.5px', 
+                padding: '10px', 
+                fontSize: '13px',
                 display: 'flex', 
-                flexDirection: 'row', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                gap: '8px',
-                borderColor: '#ef4444',
+                gap: '6px',
+                borderColor: 'rgba(239, 68, 68, 0.4)',
                 color: '#ef4444',
-                background: 'rgba(239, 68, 68, 0.08)'
+                background: 'rgba(239, 68, 68, 0.08)',
+                borderRadius: '12px'
               }}
             >
-              <span style={{ fontSize: '14px', fontWeight: 600 }}>Reset Game (Level 1)</span>
+              <RotateCcw size={16} />
+              <span>Reset Game</span>
             </button>
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-secondary)' }}>Color Palette</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+        {/* Palette Section */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--glass-border)', paddingTop: '12px' }}>
+          <div style={{ fontWeight: 700, fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Color Palette</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
             {PALETTES.map(p => (
               <button
                 key={p.id}
                 onClick={() => setPalette(p.id)}
                 className="glass-button"
                 style={{
-                  padding: '8px 12px',
+                  padding: '6px 10px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  justifyContent: 'flex-start',
+                  gap: '6px',
+                  borderRadius: '10px',
                   border: palette === p.id ? '1px solid var(--theme-accent)' : '1px solid var(--glass-border)',
                   background: palette === p.id ? 'var(--theme-accent-glow)' : 'transparent',
                   textAlign: 'left'
                 }}
               >
                 <div style={{
-                  width: '16px', height: '16px', borderRadius: '4px',
+                  width: '12px', height: '12px', borderRadius: '3px',
                   background: `linear-gradient(135deg, ${p.colors[0]} 0%, ${p.colors[1]} 100%)`
                 }} />
-                <span style={{ fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</span>
+                <span style={{ fontSize: '11px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</span>
               </button>
             ))}
           </div>
