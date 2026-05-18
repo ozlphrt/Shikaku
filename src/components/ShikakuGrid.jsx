@@ -217,6 +217,7 @@ export default function ShikakuGrid() {
   const endDraw = useGameStore(state => state.endDraw);
   const cancelDraw = useGameStore(state => state.cancelDraw);
   const removeRectangle = useGameStore(state => state.removeRectangle);
+  const colorByNumber = useGameStore(state => state.colorByNumber);
 
   const gridRef = useRef(null);
   const cachedGridRectRef = useRef(null);
@@ -498,10 +499,11 @@ export default function ShikakuGrid() {
     }
   }
 
-  // Active draw positioning
+  // Active draw positioning & styling
   let activeDrawRect = null;
   let drawStateText = '';
   let isDrawSizeMatch = false;
+  let drawBoxStyles = null;
 
   if (activeDraw) {
     const { startX, startY, currentX, currentY } = activeDraw;
@@ -524,6 +526,51 @@ export default function ShikakuGrid() {
 
     // Display dimensions only (e.g. 3 × 3)
     drawStateText = `${aw} × ${ah}`;
+
+    // Get basic position overlay styles
+    const baseStyles = getAbsoluteOverlayStyles(ax, ay, aw, ah);
+
+    // Find starting number or first enclosed number clue
+    const activeNumber = numbers.find(n => n.x === startX && n.y === startY) || numbersInActiveDraw[0];
+
+    if (isDrawSizeMatch) {
+      // Valid move -> Turns to vibrant bright green!
+      const greenBorder = '#10b981'; // Emerald Green 500
+      const greenBg = 'rgba(16, 185, 129, 0.18)';
+      const greenGlow = 'rgba(16, 185, 129, 0.35)';
+
+      drawBoxStyles = {
+        ...baseStyles,
+        border: `2px dashed ${greenBorder}`,
+        background: greenBg,
+        boxShadow: `0 8px 24px ${greenGlow}, inset 0 0 8px rgba(255, 255, 255, 0.25)`
+      };
+    } else if (colorByNumber && activeNumber) {
+      // Same color as the number!
+      const value = activeNumber.value;
+      const color = getColorForClue(value, 44, 1);
+      const glowColor = getColorForClue(value, 44, 0.35);
+      const bgColor = getColorForClue(value, 44, 0.16);
+
+      drawBoxStyles = {
+        ...baseStyles,
+        border: `2px dashed ${color}`,
+        background: bgColor,
+        boxShadow: `0 8px 24px ${glowColor}, inset 0 0 8px rgba(255, 255, 255, 0.15)`
+      };
+    } else {
+      // Mismatch/Fallback (Crimson Red dashed)
+      const redBorder = 'rgba(244, 63, 94, 0.85)';
+      const redBg = 'rgba(244, 63, 94, 0.16)';
+      const redGlow = 'rgba(244, 63, 94, 0.2)';
+
+      drawBoxStyles = {
+        ...baseStyles,
+        border: `2px dashed ${redBorder}`,
+        background: redBg,
+        boxShadow: `0 8px 24px ${redGlow}, inset 0 0 8px rgba(255, 255, 255, 0.15)`
+      };
+    }
   }
 
   return (
@@ -570,12 +617,7 @@ export default function ShikakuGrid() {
         {activeDrawRect && (
           <div
             className={`active-draw-box ${isDrawSizeMatch ? 'active-draw-valid' : 'active-draw-invalid'}`}
-            style={getAbsoluteOverlayStyles(
-              activeDrawRect.x,
-              activeDrawRect.y,
-              activeDrawRect.w,
-              activeDrawRect.h
-            )}
+            style={drawBoxStyles}
           >
             {/* Draw Size Indicator floating above finger */}
             <div className="draw-size-indicator">

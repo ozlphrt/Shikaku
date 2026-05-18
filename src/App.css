@@ -457,23 +457,19 @@ body.light-theme .cell-number-container {
 
 @keyframes activePulseRed {
   0%, 100% {
-    box-shadow: 0 8px 24px rgba(244, 63, 94, 0.2), inset 0 0 8px rgba(255, 255, 255, 0.15);
-    border-color: rgba(244, 63, 94, 0.85);
+    filter: brightness(0.95) saturate(0.95);
   }
   50% {
-    box-shadow: 0 12px 32px rgba(244, 63, 94, 0.4), inset 0 0 12px rgba(255, 255, 255, 0.25);
-    border-color: rgba(244, 63, 94, 1);
+    filter: brightness(1.15) saturate(1.15);
   }
 }
 
 @keyframes activePulseGreen {
   0%, 100% {
-    box-shadow: 0 8px 24px var(--theme-accent-glow), inset 0 0 8px rgba(255, 255, 255, 0.2);
-    border-color: var(--theme-accent);
+    filter: brightness(0.95) saturate(0.95);
   }
   50% {
-    box-shadow: 0 12px 32px var(--theme-accent-glow), inset 0 0 12px rgba(255, 255, 255, 0.3);
-    border-color: var(--theme-accent);
+    filter: brightness(1.15) saturate(1.15);
   }
 }
 
