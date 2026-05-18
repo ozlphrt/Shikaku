@@ -371,14 +371,14 @@ body.light-theme {
   font-weight: 900;
   color: var(--number-color);
   text-shadow: 
-    -1.5px -1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     1.5px -1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-    -1.5px  1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     1.5px  1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-    -1.5px  0px   0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     1.5px  0px   0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     0px   -1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     0px    1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+    -1px -1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     1px -1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+    -1px  1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     1px  1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+    -1px  0px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     1px  0px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     0px -1px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     0px  1px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
      0 4px 10px rgba(0, 0, 0, 0.45), 
      0 8px 20px rgba(0, 0, 0, 0.3);
   user-select: none;
@@ -397,14 +397,14 @@ body.light-theme .cell-number-container {
   opacity: 1; /* Retain full crisp visibility */
   transform: scale(1.02);
   text-shadow: 
-    -1.5px -1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     1.5px -1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-    -1.5px  1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     1.5px  1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-    -1.5px  0px   0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     1.5px  0px   0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     0px   -1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     0px    1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+    -1px -1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     1px -1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+    -1px  1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     1px  1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+    -1px  0px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     1px  0px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     0px -1px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     0px  1px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
      0 4px 10px rgba(0, 0, 0, 0.45), 
      0 8px 20px rgba(0, 0, 0, 0.3);
 }
@@ -412,14 +412,14 @@ body.light-theme .cell-number-container {
 .cell-number-error {
   color: var(--number-error-color);
   text-shadow: 
-    -1.5px -1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     1.5px -1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-    -1.5px  1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     1.5px  1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-    -1.5px  0px   0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     1.5px  0px   0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     0px   -1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
-     0px    1.5px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+    -1px -1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     1px -1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+    -1px  1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     1px  1px 0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+    -1px  0px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     1px  0px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     0px -1px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
+     0px  1px  0 var(--number-outline-color, rgba(0, 0, 0, 0.95)),
      0 4px 10px rgba(0, 0, 0, 0.45), 
      0 8px 20px rgba(0, 0, 0, 0.3);
 }
