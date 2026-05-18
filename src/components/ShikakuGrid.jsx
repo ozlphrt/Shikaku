@@ -74,6 +74,18 @@ const getDominoTileStyles = (rect, cols, rows) => {
   };
 };
 
+// Cache for domino styles to avoid heavy recalculations during drag events
+const styleCache = new Map();
+const getCachedDominoTileStyles = (rect, cols, rows) => {
+  const key = `${rect.id}-${rect.x}-${rect.y}-${rect.w}-${rect.h}-${cols}-${rows}`;
+  if (styleCache.has(key)) {
+    return styleCache.get(key);
+  }
+  const styles = getDominoTileStyles(rect, cols, rows);
+  styleCache.set(key, styles);
+  return styles;
+};
+
 export default function ShikakuGrid() {
   const currentLevel = useGameStore(state => state.currentLevel);
   const rectangles = useGameStore(state => state.rectangles);
@@ -106,6 +118,11 @@ export default function ShikakuGrid() {
       wrapper.removeEventListener('touchmove', preventDefaultScroll);
     };
   }, []);
+
+  // Clear style cache on level change
+  useEffect(() => {
+    styleCache.clear();
+  }, [currentLevel]);
 
   if (!currentLevel) return null;
 
@@ -205,12 +222,33 @@ export default function ShikakuGrid() {
     }
   };
 
+  // Precompute committed rectangle states once per render
+  const rectStates = React.useMemo(() => {
+    return rectangles.map(rect => ({
+      rect,
+      state: getRectState(rect)
+    }));
+  }, [rectangles, numbers]);
+
+  // Precompute 2D grid map of cell rect states
+  const cellStateMap = React.useMemo(() => {
+    const map = Array(rows).fill(null).map(() => Array(cols).fill(null));
+    for (const { rect, state } of rectStates) {
+      for (let r = rect.y; r < rect.y + rect.h; r++) {
+        for (let c = rect.x; c < rect.x + rect.w; c++) {
+          if (r >= 0 && r < rows && c >= 0 && c < cols) {
+            map[r][c] = state;
+          }
+        }
+      }
+    }
+    return map;
+  }, [rectStates, rows, cols]);
+
   // Map each cell to its rectangle status for GridCell rendering
   const getCellRectState = (x, y) => {
-    for (const rect of rectangles) {
-      if (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h) {
-        return getRectState(rect);
-      }
+    if (x >= 0 && x < cols && y >= 0 && y < rows) {
+      return cellStateMap[y][x];
     }
     return null;
   };
@@ -296,9 +334,8 @@ export default function ShikakuGrid() {
         </div>
 
         {/* Render committed rectangles as overlays */}
-        {rectangles.map(rect => {
-          const state = getRectState(rect);
-          const styles = getDominoTileStyles(rect, cols, rows);
+        {rectStates.map(({ rect, state }) => {
+          const styles = getCachedDominoTileStyles(rect, cols, rows);
           
           return (
             <div

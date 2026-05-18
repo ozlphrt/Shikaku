@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function GridCell({
+const GridCell = React.memo(function GridCell({
   x,
   y,
   number,
@@ -33,4 +33,6 @@ export default function GridCell({
       )}
     </div>
   );
-}
+});
+
+export default GridCell;
