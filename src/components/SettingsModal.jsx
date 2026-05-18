@@ -23,6 +23,7 @@ export default function SettingsModal({ isOpen, onClose }) {
   const soundEnabled = useGameStore(state => state.soundEnabled);
   const toggleSound = useGameStore(state => state.toggleSound);
   const resetTutorial = useGameStore(state => state.resetTutorial);
+  const resetEndlessProgress = useGameStore(state => state.resetEndlessProgress);
 
   if (!isOpen) return null;
 
@@ -90,6 +91,34 @@ export default function SettingsModal({ isOpen, onClose }) {
             >
               <HelpCircle size={18} />
               <span style={{ fontSize: '14px', fontWeight: 600 }}>Replay Tutorial</span>
+            </button>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-secondary)' }}>Reset Progress</div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              onClick={() => {
+                if (window.confirm("Are you sure you want to reset your endless mode progress back to Level 1?")) {
+                  resetEndlessProgress();
+                }
+              }}
+              className="glass-button"
+              style={{ 
+                flex: 1, 
+                padding: '12.5px', 
+                display: 'flex', 
+                flexDirection: 'row', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '8px',
+                borderColor: '#ef4444',
+                color: '#ef4444',
+                background: 'rgba(239, 68, 68, 0.08)'
+              }}
+            >
+              <span style={{ fontSize: '14px', fontWeight: 600 }}>Reset Game (Level 1)</span>
             </button>
           </div>
         </div>

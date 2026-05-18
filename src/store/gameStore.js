@@ -252,7 +252,7 @@ export const useGameStore = create((set, get) => ({
   })(),
   isSettingsOpen: false,
   levelNumber: initialLevelNumber, // Track saved sequential level progression
-  appVersion: '2.0.0',
+  appVersion: '2.1.0',
   updateAvailable: false,
 
   checkAppVersion: async () => {
@@ -292,6 +292,15 @@ export const useGameStore = create((set, get) => ({
     } catch (e) {
       console.error(e);
     }
+  },
+
+  resetEndlessProgress: () => {
+    try {
+      localStorage.removeItem('shikaku_session');
+    } catch (e) {}
+    set({ levelNumber: 0, isSettingsOpen: false });
+    saveLevelNumberToStorage(0);
+    get().loadEndlessLevel();
   },
   
   // Active Level info
