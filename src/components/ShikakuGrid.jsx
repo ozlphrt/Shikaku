@@ -86,12 +86,52 @@ const getCachedDominoTileStyles = (rect, cols, rows) => {
   return styles;
 };
 
-const CommittedRectangles = React.memo(function CommittedRectangles({ rectStates, cols, rows, removeRectangle }) {
+// Stable value-based color generator using the Golden Angle (137.5 degrees)
+const getColorForClue = (value) => {
+  const hue = Math.floor((value * 137.5) % 360);
+  return `hsl(${hue}, 92%, 65%)`;
+};
+
+// Find color for a rectangle based on any number clues inside its bounds
+const getRectangleColor = (rect, numbers) => {
+  if (!numbers) return null;
+  const numbersInRect = numbers.filter(n => 
+    n.x >= rect.x && n.x < rect.x + rect.w &&
+    n.y >= rect.y && n.y < rect.y + rect.h
+  );
+  if (numbersInRect.length >= 1) {
+    return getColorForClue(numbersInRect[0].value);
+  }
+  return null;
+};
+
+const CommittedRectangles = React.memo(function CommittedRectangles({ rectStates, cols, rows, removeRectangle, numbers }) {
+  const colorByNumber = useGameStore(state => state.colorByNumber);
+
   return (
     <>
       {rectStates.map(({ rect, state }) => {
         const styles = getCachedDominoTileStyles(rect, cols, rows);
         
+        let customStyles = { ...styles };
+        if (colorByNumber && state === 'satisfied') {
+          const clueColor = getRectangleColor(rect, numbers);
+          if (clueColor) {
+            customStyles = {
+              ...styles,
+              borderColor: clueColor,
+              background: `linear-gradient(135deg, rgba(0,0,0,0.7) 0%, ${clueColor}1a 100%)`,
+              boxShadow: `
+                0 12px 28px rgba(0, 0, 0, 0.55), 
+                0 4px 10px rgba(0, 0, 0, 0.25),
+                inset 2.5px 2.5px 0px rgba(255, 255, 255, 0.35), 
+                inset -2.5px -2.5px 0px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px ${clueColor}60
+              `
+            };
+          }
+        }
+
         return (
           <div
             key={rect.id}
@@ -99,7 +139,7 @@ const CommittedRectangles = React.memo(function CommittedRectangles({ rectStates
               state === 'satisfied' ? 'rect-state-valid' : 
               state === 'error' ? 'rect-state-error' : 'rect-state-neutral'
             }`}
-            style={styles}
+            style={customStyles}
             onClick={(e) => {
               e.stopPropagation();
               removeRectangle(rect.id);
@@ -459,6 +499,7 @@ export default function ShikakuGrid() {
           cols={cols} 
           rows={rows} 
           removeRectangle={removeRectangle} 
+          numbers={currentLevel?.numbers}
         />
 
         {/* Render active touch draw boundary */}
