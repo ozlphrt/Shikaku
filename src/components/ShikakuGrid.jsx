@@ -531,6 +531,10 @@ export default function ShikakuGrid() {
       <div 
         className={`board-grid-wrapper ${activeDraw ? 'drawing-active' : ''}`}
         ref={gridRef}
+        style={{
+          '--grid-rows': rows,
+          '--grid-cols': cols
+        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -541,10 +545,6 @@ export default function ShikakuGrid() {
       >
         <div 
           className="shikaku-grid-element"
-          style={{
-            '--grid-rows': rows,
-            '--grid-cols': cols
-          }}
         >
           {cells}
         </div>
