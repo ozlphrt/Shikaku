@@ -26,6 +26,26 @@ const saveSoundToStorage = (enabled) => {
   }
 };
 
+// Load color by number state from localStorage
+const loadColorByNumberFromStorage = () => {
+  try {
+    const saved = localStorage.getItem('shikaku_color_by_number');
+    if (saved) return saved === 'true';
+  } catch (e) {
+    console.error('Failed to load color_by_number from localStorage', e);
+  }
+  return false; // Disabled by default
+};
+
+// Save color by number state to localStorage
+const saveColorByNumberToStorage = (enabled) => {
+  try {
+    localStorage.setItem('shikaku_color_by_number', enabled ? 'true' : 'false');
+  } catch (e) {
+    console.error('Failed to save color_by_number to localStorage', e);
+  }
+};
+
 // Save current session to localStorage
 const saveSessionToStorage = (session) => {
   try {
@@ -275,8 +295,9 @@ export const useGameStore = create((set, get) => ({
   starsEarned: loadStarsFromStorage(),
   moveCount: 0,
   lastScoreData: null,
-  appVersion: '2.8.0',
+  appVersion: '2.8.1',
   updateAvailable: false,
+  colorByNumber: loadColorByNumberFromStorage(),
 
   checkAppVersion: async () => {
     if (!navigator.onLine) return;
@@ -297,6 +318,12 @@ export const useGameStore = create((set, get) => ({
     const next = !get().soundEnabled;
     set({ soundEnabled: next });
     saveSoundToStorage(next);
+  },
+
+  toggleColorByNumber: () => {
+    const next = !get().colorByNumber;
+    set({ colorByNumber: next });
+    saveColorByNumberToStorage(next);
   },
 
   completeTutorial: () => {

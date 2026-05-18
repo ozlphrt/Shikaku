@@ -1,4 +1,12 @@
 import React from 'react';
+import { useGameStore } from '../store/gameStore';
+
+// Stable coordinate-based color generator
+const getColorForClue = (x, y) => {
+  const seed = (x * 73856093) ^ (y * 19349663);
+  const hue = Math.abs(seed) % 360;
+  return `hsl(${hue}, 88%, 65%)`;
+};
 
 const GridCell = React.memo(function GridCell({
   x,
@@ -10,6 +18,9 @@ const GridCell = React.memo(function GridCell({
 }) {
   const isSatisfied = rectState === 'satisfied';
   const isError = rectState === 'error';
+  const colorByNumber = useGameStore(state => state.colorByNumber);
+
+  const clueColor = number ? getColorForClue(number.x, number.y) : null;
 
   return (
     <div 
@@ -24,6 +35,11 @@ const GridCell = React.memo(function GridCell({
           } ${
             isError ? 'cell-number-error shake-error' : ''
           }`}
+          style={colorByNumber ? {
+            color: clueColor,
+            textShadow: `0 0 10px ${clueColor}`,
+            borderColor: clueColor // If there's any border
+          } : {}}
         >
           {number.value}
         </div>

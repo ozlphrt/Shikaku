@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
-import { X, Sun, Moon, Volume2, VolumeX, HelpCircle } from 'lucide-react';
+import { X, Sun, Moon, Volume2, VolumeX, HelpCircle, Paintbrush } from 'lucide-react';
 
 const PALETTES = [
   { id: 'obsidian', name: 'Graphite Steel', colors: ['#1e2024', '#9ba3af'] },
@@ -24,6 +24,8 @@ export default function SettingsModal({ isOpen, onClose }) {
   const toggleSound = useGameStore(state => state.toggleSound);
   const resetTutorial = useGameStore(state => state.resetTutorial);
   const resetEndlessProgress = useGameStore(state => state.resetEndlessProgress);
+  const colorByNumber = useGameStore(state => state.colorByNumber);
+  const toggleColorByNumber = useGameStore(state => state.toggleColorByNumber);
 
   if (!isOpen) return null;
 
@@ -77,6 +79,20 @@ export default function SettingsModal({ isOpen, onClose }) {
             >
               {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
               <span style={{ fontSize: '14px', fontWeight: 600 }}>{soundEnabled ? 'Sound On' : 'Sound Off'}</span>
+            </button>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-secondary)' }}>Color Settings</div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              onClick={toggleColorByNumber}
+              className={`glass-button ${colorByNumber ? 'active' : ''}`}
+              style={{ flex: 1, padding: '12.5px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', background: colorByNumber ? 'var(--theme-accent-glow)' : '', borderColor: colorByNumber ? 'var(--theme-accent)' : '' }}
+            >
+              <Paintbrush size={18} style={{ color: colorByNumber ? 'var(--theme-accent)' : 'currentColor' }} />
+              <span style={{ fontSize: '14px', fontWeight: 600 }}>{colorByNumber ? 'Color by Number: On' : 'Color by Number: Off'}</span>
             </button>
           </div>
         </div>
