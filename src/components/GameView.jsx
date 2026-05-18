@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import ShikakuGrid from './ShikakuGrid';
 import GameHeader from './GameHeader';
-import { Undo2, Redo2, RotateCcw, HelpCircle } from 'lucide-react';
+import { Undo2, Redo2, RotateCcw, HelpCircle, Play } from 'lucide-react';
 
 export default function GameView() {
   const currentLevel = useGameStore(state => state.currentLevel);
@@ -12,6 +12,7 @@ export default function GameView() {
   const undo = useGameStore(state => state.undo);
   const redo = useGameStore(state => state.redo);
   const resetLevel = useGameStore(state => state.resetLevel);
+  const resetTutorial = useGameStore(state => state.resetTutorial);
 
   // Help modal display state
   const [showHelp, setShowHelp] = useState(false);
@@ -127,14 +128,39 @@ export default function GameView() {
               </div>
             </div>
 
-            {/* Acknowledge Button */}
-            <button 
-              className="glass-button glass-button-primary" 
-              onClick={() => setShowHelp(false)}
-              style={{ marginTop: '24px', width: '100%', padding: '12px', fontSize: '15px', fontWeight: '600' }}
-            >
-              Got It, Let's Play!
-            </button>
+            {/* Action Buttons stacked elegantly for easy mobile access */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px', width: '100%' }}>
+              <button 
+                className="glass-button" 
+                onClick={() => {
+                  setShowHelp(false);
+                  resetTutorial(); // Trigger self-playing animation!
+                }}
+                style={{ 
+                  width: '100%', 
+                  padding: '12px', 
+                  fontSize: '15px', 
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  border: '1px solid rgba(6, 182, 212, 0.4)',
+                  color: '#22d3ee'
+                }}
+              >
+                <Play size={16} fill="rgba(6, 182, 212, 0.2)" />
+                Play Animated Guide
+              </button>
+
+              <button 
+                className="glass-button glass-button-primary" 
+                onClick={() => setShowHelp(false)}
+                style={{ width: '100%', padding: '12px', fontSize: '15px', fontWeight: '600' }}
+              >
+                Got It, Let's Play!
+              </button>
+            </div>
           </div>
         </div>
       )}

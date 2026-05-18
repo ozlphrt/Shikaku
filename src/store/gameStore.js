@@ -225,6 +225,23 @@ export const useGameStore = create((set, get) => ({
   })(),
   isSettingsOpen: false,
   levelNumber: initialLevelNumber, // Track saved sequential level progression
+  appVersion: '1.1.0',
+  updateAvailable: false,
+
+  checkAppVersion: async () => {
+    if (!navigator.onLine) return;
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}version.json?t=${Date.now()}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.version && data.version !== get().appVersion) {
+          set({ updateAvailable: true });
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to check app version', e);
+    }
+  },
 
   toggleSound: () => {
     const next = !get().soundEnabled;

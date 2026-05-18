@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import { useGameStore } from './store/gameStore';
 import CampaignView from './components/CampaignView';
@@ -6,6 +6,7 @@ import GameView from './components/GameView';
 import WinOverlay from './components/WinOverlay';
 import SettingsModal from './components/SettingsModal';
 import TutorialOverlay from './components/TutorialOverlay';
+import { RefreshCw, X } from 'lucide-react';
 
 function App() {
   const gameState = useGameStore(state => state.gameState);
@@ -19,13 +20,21 @@ function App() {
   const completeTutorial = useGameStore(state => state.completeTutorial);
 
   const startTimer = useGameStore(state => state.startTimer);
+  const updateAvailable = useGameStore(state => state.updateAvailable);
+  const checkAppVersion = useGameStore(state => state.checkAppVersion);
+  const [dismissedUpdate, setDismissedUpdate] = useState(false);
 
   // Sync theme and palette variables on mount
   useEffect(() => {
     setTheme(theme);
     setPalette(palette);
     startTimer(); // Immediately kick off the game timer on load
-  }, [theme, setTheme, palette, setPalette, startTimer]);
+
+    // Remote version check if client is online
+    if (navigator.onLine) {
+      checkAppVersion();
+    }
+  }, [theme, setTheme, palette, setPalette, startTimer, checkAppVersion]);
 
   // Handle mouse wheel scrolling to cycle palettes
   useEffect(() => {
@@ -102,6 +111,42 @@ function App() {
 
       {/* Onboarding Interactive Self-Playing Tutorial */}
       {!hasSeenTutorial && <TutorialOverlay onComplete={completeTutorial} />}
+
+      {/* Stunning Glassmorphic Remote Update Notification Banner */}
+      {updateAvailable && !dismissedUpdate && (
+        <div 
+          className="update-notification-banner"
+          onClick={() => window.location.reload(true)}
+          title="Click to install update and reload"
+        >
+          <div className="update-text">
+            <RefreshCw size={18} className="update-icon-pulse" />
+            <span>New update available!</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button className="update-action-btn">Update</button>
+            <button 
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                padding: '4px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setDismissedUpdate(true);
+              }}
+              title="Dismiss"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
