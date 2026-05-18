@@ -49,7 +49,7 @@ export default function WinOverlay() {
     if (hasNextLevel) {
       loadCampaignLevel(nextPackId, nextLevelIdx);
     } else if (currentLevel.isEndless) {
-      loadEndlessLevel(rows);
+      loadEndlessLevel(); // Let it scale dynamically based on the new levelNumber!
     }
   };
 

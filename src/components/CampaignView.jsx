@@ -7,6 +7,7 @@ export default function CampaignView() {
   const campaignProgress = useGameStore(state => state.campaignProgress);
   const loadCampaignLevel = useGameStore(state => state.loadCampaignLevel);
   const loadEndlessLevel = useGameStore(state => state.loadEndlessLevel);
+  const levelNumber = useGameStore(state => state.levelNumber);
 
   // Track which section is expanded ('easy', 'medium', 'hard', 'endless')
   const [expandedSection, setExpandedSection] = useState('easy');
@@ -214,6 +215,27 @@ export default function CampaignView() {
                     borderTop: '1px solid rgba(255, 255, 255, 0.08)'
                   }}
                 >
+                  <button 
+                    className="glass-button glass-button-primary"
+                    onClick={() => loadEndlessLevel()}
+                    style={{ 
+                      gridColumn: '1 / -1', 
+                      padding: '12px 14px', 
+                      borderRadius: '12px',
+                      marginBottom: '10px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '4px',
+                      background: 'var(--theme-accent-glow)',
+                      borderColor: 'var(--theme-accent)',
+                      boxShadow: '0 0 15px var(--theme-accent-glow)'
+                    }}
+                  >
+                    <strong style={{ fontSize: '15px' }}>Resume Endless Journey</strong>
+                    <span style={{ fontSize: '12px', opacity: 0.85 }}>Play Level {levelNumber + 1}</span>
+                  </button>
+
                   <button 
                     className="glass-button endless-btn"
                     onClick={() => loadEndlessLevel(6)}
