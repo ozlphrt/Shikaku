@@ -87,9 +87,9 @@ const getCachedDominoTileStyles = (rect, cols, rows) => {
 };
 
 // Stable value-based color generator using the Golden Angle (137.5 degrees)
-const getColorForClue = (value) => {
+const getColorForClue = (value, opacity = 1) => {
   const hue = Math.floor((value * 137.5) % 360);
-  return `hsl(${hue}, 92%, 65%)`;
+  return opacity === 1 ? `hsl(${hue}, 92%, 65%)` : `hsla(${hue}, 92%, 65%, ${opacity})`;
 };
 
 // Find color for a rectangle based on any number clues inside its bounds
@@ -100,7 +100,7 @@ const getRectangleColor = (rect, numbers) => {
     n.y >= rect.y && n.y < rect.y + rect.h
   );
   if (numbersInRect.length >= 1) {
-    return getColorForClue(numbersInRect[0].value);
+    return numbersInRect[0].value;
   }
   return null;
 };
@@ -115,18 +115,22 @@ const CommittedRectangles = React.memo(function CommittedRectangles({ rectStates
         
         let customStyles = { ...styles };
         if (colorByNumber && state === 'satisfied') {
-          const clueColor = getRectangleColor(rect, numbers);
-          if (clueColor) {
+          const val = getRectangleColor(rect, numbers);
+          if (val !== null) {
+            const baseColor = getColorForClue(val, 1);
+            const transparentBgColor = getColorForClue(val, 0.15);
+            const glowColor = getColorForClue(val, 0.4);
+
             customStyles = {
               ...styles,
-              borderColor: clueColor,
-              background: `linear-gradient(135deg, rgba(0,0,0,0.7) 0%, ${clueColor}1a 100%)`,
+              borderColor: baseColor,
+              background: `linear-gradient(135deg, rgba(0,0,0,0.72) 0%, ${transparentBgColor} 100%)`,
               boxShadow: `
                 0 12px 28px rgba(0, 0, 0, 0.55), 
                 0 4px 10px rgba(0, 0, 0, 0.25),
                 inset 2.5px 2.5px 0px rgba(255, 255, 255, 0.35), 
                 inset -2.5px -2.5px 0px rgba(0, 0, 0, 0.5),
-                inset 0 0 20px ${clueColor}60
+                inset 0 0 20px ${glowColor}
               `
             };
           }
