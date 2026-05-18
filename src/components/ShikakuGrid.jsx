@@ -545,21 +545,32 @@ export default function ShikakuGrid() {
         background: greenBg,
         boxShadow: `0 8px 24px ${greenGlow}, inset 0 0 8px rgba(255, 255, 255, 0.25)`
       };
-    } else if (colorByNumber && activeNumber) {
-      // Same color as the number!
-      const value = activeNumber.value;
-      const color = getColorForClue(value, 44, 1);
-      const glowColor = getColorForClue(value, 44, 0.35);
-      const bgColor = getColorForClue(value, 44, 0.16);
+    } else if (activeNumber) {
+      // We have a number in the drawing! Let's adapt the drawing color.
+      if (colorByNumber) {
+        // Colored mode -> Match number HSL color
+        const value = activeNumber.value;
+        const color = getColorForClue(value, 44, 1);
+        const glowColor = getColorForClue(value, 44, 0.35);
+        const bgColor = getColorForClue(value, 44, 0.16);
 
-      drawBoxStyles = {
-        ...baseStyles,
-        border: `2px dashed ${color}`,
-        background: bgColor,
-        boxShadow: `0 8px 24px ${glowColor}, inset 0 0 8px rgba(255, 255, 255, 0.15)`
-      };
+        drawBoxStyles = {
+          ...baseStyles,
+          border: `2px dashed ${color}`,
+          background: bgColor,
+          boxShadow: `0 8px 24px ${glowColor}, inset 0 0 8px rgba(255, 255, 255, 0.15)`
+        };
+      } else {
+        // Standard mode -> Match the theme accent color
+        drawBoxStyles = {
+          ...baseStyles,
+          border: '2px dashed var(--theme-accent)',
+          background: 'var(--theme-accent-glow)',
+          boxShadow: '0 8px 24px var(--theme-accent-glow), inset 0 0 8px rgba(255, 255, 255, 0.15)'
+        };
+      }
     } else {
-      // Mismatch/Fallback (Crimson Red dashed)
+      // No number in the drawing -> Mismatch/Fallback (Crimson Red dashed)
       const redBorder = 'rgba(244, 63, 94, 0.85)';
       const redBg = 'rgba(244, 63, 94, 0.16)';
       const redGlow = 'rgba(244, 63, 94, 0.2)';
