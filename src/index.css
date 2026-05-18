@@ -678,30 +678,17 @@ body.light-theme[data-palette="mintchoc"] {
 body::before {
   content: '';
   position: fixed;
-  top: -50%;
-  left: -50%;
-  right: -50%;
-  bottom: -50%;
-  width: 200%;
-  height: 200%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
   background: radial-gradient(circle at 10% 20%, var(--bg-spot-1) 0%, transparent 45%),
               radial-gradient(circle at 90% 10%, var(--bg-spot-2) 0%, transparent 45%),
               radial-gradient(circle at 50% 80%, var(--bg-spot-3) 0%, transparent 50%),
               radial-gradient(circle at 80% 90%, var(--bg-spot-4) 0%, transparent 40%);
   z-index: -1;
-  animation: bgShift 25s infinite alternate ease-in-out;
-}
-
-@keyframes bgShift {
-  0% {
-    transform: rotate(0deg) scale(1);
-  }
-  50% {
-    transform: rotate(5deg) scale(1.05);
-  }
-  100% {
-    transform: rotate(-5deg) scale(0.95);
-  }
 }
 
 #root {
@@ -808,13 +795,10 @@ body::before {
   animation: shake 0.3s ease-in-out;
 }
 
-@keyframes pulseGently {
-  0%, 100% { transform: scale(1); filter: brightness(1); }
-  50% { transform: scale(1.03); filter: brightness(1.15); }
-}
-
 .pulse-satisfied {
-  animation: pulseGently 2s infinite ease-in-out;
+  /* Premium static satisfied glow with no continuous animation load */
+  filter: brightness(1.12);
+  transform: scale(1.02);
 }
 
 .fade-in {
