@@ -5,6 +5,7 @@ import CampaignView from './components/CampaignView';
 import GameView from './components/GameView';
 import WinOverlay from './components/WinOverlay';
 import SettingsModal from './components/SettingsModal';
+import TutorialOverlay from './components/TutorialOverlay';
 
 function App() {
   const gameState = useGameStore(state => state.gameState);
@@ -14,12 +15,17 @@ function App() {
   const setPalette = useGameStore(state => state.setPalette);
   const isSettingsOpen = useGameStore(state => state.isSettingsOpen);
   const closeSettings = useGameStore(state => state.closeSettings);
+  const hasSeenTutorial = useGameStore(state => state.hasSeenTutorial);
+  const completeTutorial = useGameStore(state => state.completeTutorial);
+
+  const startTimer = useGameStore(state => state.startTimer);
 
   // Sync theme and palette variables on mount
   useEffect(() => {
     setTheme(theme);
     setPalette(palette);
-  }, [theme, setTheme, palette, setPalette]);
+    startTimer(); // Immediately kick off the game timer on load
+  }, [theme, setTheme, palette, setPalette, startTimer]);
 
   // Handle mouse wheel scrolling to cycle palettes
   useEffect(() => {
@@ -86,21 +92,16 @@ function App() {
         </filter>
       </svg>
 
-      {/* 
-        Menu / Level Select screen 
-      */}
-      {gameState === 'menu' && <CampaignView />}
-
-      {/* 
-        Active puzzle stage 
-      */}
-      {(gameState === 'playing' || gameState === 'won') && <GameView />}
+      <GameView />
 
       {/* 
         Sliding win panel 
       */}
       {gameState === 'won' && <WinOverlay />}
       <SettingsModal isOpen={isSettingsOpen} onClose={closeSettings} />
+
+      {/* Onboarding Interactive Self-Playing Tutorial */}
+      {!hasSeenTutorial && <TutorialOverlay onComplete={completeTutorial} />}
     </div>
   );
 }

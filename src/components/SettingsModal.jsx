@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
-import { X, Sun, Moon } from 'lucide-react';
+import { X, Sun, Moon, Volume2, VolumeX, HelpCircle } from 'lucide-react';
 
 const PALETTES = [
   { id: 'obsidian', name: 'Graphite Steel', colors: ['#1e2024', '#9ba3af'] },
@@ -20,6 +20,9 @@ export default function SettingsModal({ isOpen, onClose }) {
   const toggleTheme = useGameStore(state => state.toggleTheme);
   const palette = useGameStore(state => state.palette);
   const setPalette = useGameStore(state => state.setPalette);
+  const soundEnabled = useGameStore(state => state.soundEnabled);
+  const toggleSound = useGameStore(state => state.toggleSound);
+  const resetTutorial = useGameStore(state => state.resetTutorial);
 
   if (!isOpen) return null;
 
@@ -59,6 +62,34 @@ export default function SettingsModal({ isOpen, onClose }) {
             >
               <Sun size={20} />
               <span style={{ fontSize: '14px' }}>Light</span>
+            </button>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-secondary)' }}>Sound Effects</div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              onClick={toggleSound}
+              className={`glass-button ${soundEnabled ? 'active' : ''}`}
+              style={{ flex: 1, padding: '12.5px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', background: soundEnabled ? 'var(--theme-accent-glow)' : '', borderColor: soundEnabled ? 'var(--theme-accent)' : '' }}
+            >
+              {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+              <span style={{ fontSize: '14px', fontWeight: 600 }}>{soundEnabled ? 'Sound On' : 'Sound Off'}</span>
+            </button>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-secondary)' }}>Guide</div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              onClick={resetTutorial}
+              className="glass-button"
+              style={{ flex: 1, padding: '12.5px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              <HelpCircle size={18} />
+              <span style={{ fontSize: '14px', fontWeight: 600 }}>Replay Tutorial</span>
             </button>
           </div>
         </div>

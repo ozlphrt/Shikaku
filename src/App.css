@@ -296,6 +296,10 @@ body.light-theme {
   user-select: none;
 }
 
+.board-grid-wrapper.drawing-active .completed-rect-overlay {
+  pointer-events: none;
+}
+
 .shikaku-grid-element {
   display: grid;
   width: 100%;

@@ -15,13 +15,9 @@ function getRectDimensions(area) {
 
 // Generate a random partition of a grid of size (rows, cols)
 // Returns a list of rectangles: { x, y, w, h }
-function generateSlices(rows, cols) {
+function generateSlices(rows, cols, minArea = 2, maxArea = 16, splitProbability = 0.7) {
   const slices = [];
   const queue = [{ x: 0, y: 0, w: cols, h: rows }];
-
-  // We want slices to be reasonably sized: minimum area of 2, maximum area of 16 (for 5x5 - 12x12 grids)
-  const minArea = 2;
-  const maxArea = 16;
 
   while (queue.length > 0) {
     const rect = queue.shift();
@@ -31,7 +27,7 @@ function generateSlices(rows, cols) {
     let shouldSplit = false;
     if (area > maxArea) {
       shouldSplit = true;
-    } else if (area > minArea && Math.random() < 0.7) {
+    } else if (area > minArea && Math.random() < splitProbability) {
       shouldSplit = true;
     }
 
@@ -53,17 +49,31 @@ function generateSlices(rows, cols) {
 
     if (splitVertical && rect.w >= 2) {
       // Choose a split point along width (1 to w-1)
-      const validPoints = [];
+      const candidates = [];
       for (let cut = 1; cut < rect.w; cut++) {
         const a1 = cut * rect.h;
         const a2 = (rect.w - cut) * rect.h;
         if (a1 >= minArea && a2 >= minArea) {
-          validPoints.push(cut);
+          // Staggering heuristic: Count adjacent slices whose boundaries align with this cut
+          const x_cut = rect.x + cut;
+          let alignCount = 0;
+          for (const s of slices) {
+            const yOverlap = Math.max(rect.y, s.y) < Math.min(rect.y + rect.h, s.y + s.h);
+            if (yOverlap && (s.x === x_cut || s.x + s.w === x_cut)) {
+              alignCount++;
+            }
+          }
+          candidates.push({ cut, alignCount });
         }
       }
 
-      if (validPoints.length > 0) {
-        const cut = validPoints[Math.floor(Math.random() * validPoints.length)];
+      if (candidates.length > 0) {
+        // Sort ascending by alignCount to minimize boundary alignment (max staggering!)
+        candidates.sort((a, b) => a.alignCount - b.alignCount);
+        const minAlign = candidates[0].alignCount;
+        const bestPoints = candidates.filter(c => c.alignCount === minAlign).map(c => c.cut);
+        const cut = bestPoints[Math.floor(Math.random() * bestPoints.length)];
+
         queue.push({ x: rect.x, y: rect.y, w: cut, h: rect.h });
         queue.push({ x: rect.x + cut, y: rect.y, w: rect.w - cut, h: rect.h });
         splitSuccess = true;
@@ -72,17 +82,31 @@ function generateSlices(rows, cols) {
 
     if (!splitSuccess && rect.h >= 2) {
       // Choose a split point along height (1 to h-1)
-      const validPoints = [];
+      const candidates = [];
       for (let cut = 1; cut < rect.h; cut++) {
         const a1 = rect.w * cut;
         const a2 = rect.w * (rect.h - cut);
         if (a1 >= minArea && a2 >= minArea) {
-          validPoints.push(cut);
+          // Staggering heuristic: Count adjacent slices whose boundaries align with this cut
+          const y_cut = rect.y + cut;
+          let alignCount = 0;
+          for (const s of slices) {
+            const xOverlap = Math.max(rect.x, s.x) < Math.min(rect.x + rect.w, s.x + s.w);
+            if (xOverlap && (s.y === y_cut || s.y + s.h === y_cut)) {
+              alignCount++;
+            }
+          }
+          candidates.push({ cut, alignCount });
         }
       }
 
-      if (validPoints.length > 0) {
-        const cut = validPoints[Math.floor(Math.random() * validPoints.length)];
+      if (candidates.length > 0) {
+        // Sort ascending by alignCount to minimize boundary alignment (max staggering!)
+        candidates.sort((a, b) => a.alignCount - b.alignCount);
+        const minAlign = candidates[0].alignCount;
+        const bestPoints = candidates.filter(c => c.alignCount === minAlign).map(c => c.cut);
+        const cut = bestPoints[Math.floor(Math.random() * bestPoints.length)];
+
         queue.push({ x: rect.x, y: rect.y, w: rect.w, h: cut });
         queue.push({ x: rect.x, y: rect.y + cut, w: rect.w, h: rect.h - cut });
         splitSuccess = true;
@@ -219,15 +243,17 @@ function countSolutions(rows, cols, numbers) {
  * Generate a complete, verified Shikaku puzzle
  * @param {number} rows - number of rows (e.g. 5 to 12)
  * @param {number} cols - number of columns (e.g. 5 to 12)
+ * @param {number} maxArea - maximum area of a partitioned slice
+ * @param {number} splitProbability - chance of further partitioning a slice
  * @returns {{gridSize: {rows, cols}, numbers: Array<{x, y, value}>}}
  */
-export function generateShikakuPuzzle(rows, cols) {
+export function generateShikakuPuzzle(rows, cols, minArea = 2, maxArea = 16, splitProbability = 0.7) {
   let attempts = 0;
   const maxAttempts = 100;
 
   while (attempts < maxAttempts) {
     attempts++;
-    const slices = generateSlices(rows, cols);
+    const slices = generateSlices(rows, cols, minArea, maxArea, splitProbability);
     const numbers = [];
 
     // For each slice, place its number inside

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { Clock, Star, ArrowLeft, Settings } from 'lucide-react';
+import { Clock, Star, Settings } from 'lucide-react';
 
 export default function GameHeader() {
-  const exitToMenu = useGameStore(state => state.exitToMenu);
   const elapsedTime = useGameStore(state => state.elapsedTime);
+  const currentLevel = useGameStore(state => state.currentLevel);
 
   // Format seconds to mm:ss
   const formatTime = (secs) => {
@@ -16,12 +16,14 @@ export default function GameHeader() {
 
   return (
     <div className="game-header glass-panel" style={{ position: 'relative' }}>
-      <button className="glass-button glass-button-icon" onClick={exitToMenu}>
-        <ArrowLeft size={20} />
-      </button>
 
-      <div className="header-title">
-        <span>SHIKAKU</span>
+      <div className="header-title" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0px' }}>
+        <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.65, color: 'var(--text-secondary)', background: 'none', WebkitTextFillColor: 'initial' }}>
+          {currentLevel?.isEndless ? 'Procedural' : 'Campaign'} • {currentLevel?.gridSize.rows}×{currentLevel?.gridSize.cols}
+        </span>
+        <span style={{ fontSize: '18px', fontWeight: '800', marginTop: '-2px', background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          {currentLevel?.name || 'SHIKAKU'}
+        </span>
       </div>
 
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

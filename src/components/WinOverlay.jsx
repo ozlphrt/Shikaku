@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { CAMPAIGN_PACKS } from '../data/campaignLevels';
-import { Clock, Home, ArrowRight, RotateCcw } from 'lucide-react';
+import { Clock, ArrowRight, RotateCcw } from 'lucide-react';
 export default function WinOverlay() {
   const currentPack = useGameStore(state => state.currentPack);
   const currentLevelIndex = useGameStore(state => state.currentLevelIndex);
   const currentLevel = useGameStore(state => state.currentLevel);
   const elapsedTime = useGameStore(state => state.elapsedTime);
   
-  const exitToMenu = useGameStore(state => state.exitToMenu);
   const resetLevel = useGameStore(state => state.resetLevel);
   const loadCampaignLevel = useGameStore(state => state.loadCampaignLevel);
   const loadEndlessLevel = useGameStore(state => state.loadEndlessLevel);
@@ -81,14 +80,10 @@ export default function WinOverlay() {
             </button>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', width: '100%' }}>
-            <button className="glass-button" onClick={resetLevel}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', width: '100%' }}>
+            <button className="glass-button" onClick={resetLevel} style={{ width: '100%' }}>
               <RotateCcw size={16} />
-              <span>Retry</span>
-            </button>
-            <button className="glass-button" onClick={exitToMenu}>
-              <Home size={16} />
-              <span>Menu</span>
+              <span>Retry Level</span>
             </button>
           </div>
         </div>

@@ -244,7 +244,7 @@ export default function ShikakuGrid() {
   return (
     <div className="board-outer-container">
       <div 
-        className="board-grid-wrapper"
+        className={`board-grid-wrapper ${activeDraw ? 'drawing-active' : ''}`}
         ref={gridRef}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

@@ -1,9 +1,150 @@
 import { create } from 'zustand';
 import { generateShikakuPuzzle } from '../utils/shikakuGenerator';
 import { CAMPAIGN_PACKS } from '../data/campaignLevels';
+import { playClickSound, playBounceSound, playVictorySound } from '../utils/audioEffects';
 
 // Helper: Generate unique ID
 const generateId = () => Math.random().toString(36).substring(2, 9);
+
+// Load sound state from localStorage
+const loadSoundFromStorage = () => {
+  try {
+    const saved = localStorage.getItem('shikaku_sound');
+    if (saved) return saved === 'true';
+  } catch (e) {
+    console.error('Failed to load sound from localStorage', e);
+  }
+  return true; // Enabled by default
+};
+
+// Save sound state to localStorage
+const saveSoundToStorage = (enabled) => {
+  try {
+    localStorage.setItem('shikaku_sound', enabled ? 'true' : 'false');
+  } catch (e) {
+    console.error('Failed to save sound to localStorage', e);
+  }
+};
+
+// Save current session to localStorage
+const saveSessionToStorage = (session) => {
+  try {
+    localStorage.setItem('shikaku_active_session', JSON.stringify(session));
+  } catch (e) {
+    console.error('Failed to save session to localStorage', e);
+  }
+};
+
+// Load current session from localStorage
+const loadSessionFromStorage = () => {
+  try {
+    const saved = localStorage.getItem('shikaku_active_session');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.currentLevel && parsed.rectangles) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load session from localStorage', e);
+  }
+  return null;
+};
+
+// Save level number to localStorage
+const saveLevelNumberToStorage = (levelNum) => {
+  try {
+    localStorage.setItem('shikaku_level_number', String(levelNum));
+  } catch (e) {
+    console.error('Failed to save level number to localStorage', e);
+  }
+};
+
+// Load level number from localStorage
+const loadLevelNumberFromStorage = () => {
+  try {
+    const saved = localStorage.getItem('shikaku_level_number');
+    if (saved) {
+      const parsed = parseInt(saved, 10);
+      if (!isNaN(parsed) && parsed > 0) return parsed;
+    }
+  } catch (e) {
+    console.error('Failed to load level number from localStorage', e);
+  }
+  return 1;
+};
+
+// Difficulty scaling helper
+const getDifficultyForLevel = (levelNum) => {
+  let minArea = 2;
+  let maxArea = 16;
+  let splitProb = 0.7;
+
+  if (levelNum <= 2) {
+    minArea = 2;
+    maxArea = 6;
+    splitProb = 0.85;
+  } else if (levelNum <= 4) {
+    minArea = 2;
+    maxArea = 8;
+    splitProb = 0.80;
+  } else if (levelNum <= 6) {
+    minArea = 3;
+    maxArea = 10;
+    splitProb = 0.75;
+  } else if (levelNum <= 8) {
+    minArea = 4;
+    maxArea = 10;
+    splitProb = 0.75;
+  } else {
+    minArea = 4;
+    maxArea = 9;
+    splitProb = 0.80;
+  }
+  return { minArea, maxArea, splitProb };
+};
+
+// Helper: Save current session from store getters
+const saveCurrentSession = (state) => {
+  if (state.currentLevel && state.currentLevel.isEndless) {
+    saveSessionToStorage({
+      levelNumber: state.levelNumber,
+      currentLevel: state.currentLevel,
+      rectangles: state.rectangles,
+      elapsedTime: state.elapsedTime,
+      gameState: state.gameState
+    });
+  }
+};
+
+// Determine initial state by restoring saved session or saved level number
+const savedSession = loadSessionFromStorage();
+const savedLevelNum = loadLevelNumberFromStorage();
+
+let initialLevel;
+let initialLevelNumber = savedLevelNum;
+let initialRectangles = [];
+let initialElapsedTime = 0;
+let initialGameState = 'playing';
+
+if (savedSession) {
+  initialLevel = savedSession.currentLevel;
+  initialLevelNumber = savedSession.levelNumber;
+  initialRectangles = savedSession.rectangles;
+  initialElapsedTime = savedSession.elapsedTime;
+  initialGameState = savedSession.gameState;
+} else {
+  // Generate fresh starting level for savedLevelNum
+  const diff = getDifficultyForLevel(savedLevelNum);
+  const initialPuzzle = generateShikakuPuzzle(7, 7, diff.minArea, diff.maxArea, diff.splitProb);
+  initialLevel = {
+    id: `endless_7_${Date.now()}`,
+    name: `Level ${savedLevelNum}`,
+    gridSize: initialPuzzle.gridSize,
+    numbers: initialPuzzle.numbers,
+    isEndless: true
+  };
+}
 
 // Load progress from LocalStorage
 const loadProgressFromStorage = () => {
@@ -70,19 +211,52 @@ const savePaletteToStorage = (palette) => {
 
 export const useGameStore = create((set, get) => ({
   // Navigation & Game State
-  gameState: 'menu', // 'menu', 'playing', 'won'
+  gameState: initialGameState, // Resume previous game state (playing/won) on startup
   campaignProgress: loadProgressFromStorage(),
   theme: loadThemeFromStorage(),
   palette: loadPaletteFromStorage(),
+  soundEnabled: loadSoundFromStorage(),
+  hasSeenTutorial: (() => {
+    try {
+      return localStorage.getItem('shikaku_seen_tutorial') === 'true';
+    } catch (e) {
+      return false;
+    }
+  })(),
   isSettingsOpen: false,
+  levelNumber: initialLevelNumber, // Track saved sequential level progression
+
+  toggleSound: () => {
+    const next = !get().soundEnabled;
+    set({ soundEnabled: next });
+    saveSoundToStorage(next);
+  },
+
+  completeTutorial: () => {
+    set({ hasSeenTutorial: true });
+    try {
+      localStorage.setItem('shikaku_seen_tutorial', 'true');
+    } catch (e) {
+      console.error(e);
+    }
+  },
+
+  resetTutorial: () => {
+    set({ hasSeenTutorial: false, isSettingsOpen: false });
+    try {
+      localStorage.removeItem('shikaku_seen_tutorial');
+    } catch (e) {
+      console.error(e);
+    }
+  },
   
   // Active Level info
-  currentPack: null,
+  currentPack: 'endless',
   currentLevelIndex: null,
-  currentLevel: null, // { id, name, gridSize: { rows, cols }, numbers: [...] }
+  currentLevel: initialLevel,
   
   // Playing State
-  rectangles: [], // List of user-drawn { id, x, y, w, h }
+  rectangles: initialRectangles, // List of user-drawn { id, x, y, w, h } restored on load
   activeDraw: null, // { startX, startY, currentX, currentY } (coordinates of starting & current cells)
 
   openSettings: () => set({ isSettingsOpen: true }),
@@ -114,7 +288,7 @@ export const useGameStore = create((set, get) => ({
   
   // Game metrics
   startTime: null,
-  elapsedTime: 0,
+  elapsedTime: initialElapsedTime, // Restore saved timers
   timerInterval: null,
   
   // Undo / Redo history
@@ -128,6 +302,7 @@ export const useGameStore = create((set, get) => ({
     get().stopTimer();
     const interval = setInterval(() => {
       set(state => ({ elapsedTime: state.elapsedTime + 1 }));
+      saveCurrentSession(get()); // Sync active timer to storage on every tick
     }, 1000);
     set({ timerInterval: interval });
   },
@@ -166,10 +341,14 @@ export const useGameStore = create((set, get) => ({
 
   // Load an Endless Mode / Custom Level
   loadEndlessLevel: (size) => {
-    const puzzle = generateShikakuPuzzle(size, size);
+    const nextLevelNum = get().levelNumber + 1;
+    const targetSize = size || 7;
+    const diff = getDifficultyForLevel(nextLevelNum);
+
+    const puzzle = generateShikakuPuzzle(targetSize, targetSize, diff.minArea, diff.maxArea, diff.splitProb);
     const level = {
-      id: `endless_${size}_${Date.now()}`,
-      name: `Endless ${size} × ${size}`,
+      id: `endless_${targetSize}_${Date.now()}`,
+      name: `Level ${nextLevelNum}`,
       gridSize: puzzle.gridSize,
       numbers: puzzle.numbers,
       isEndless: true
@@ -180,6 +359,7 @@ export const useGameStore = create((set, get) => ({
       currentPack: 'endless',
       currentLevelIndex: null,
       currentLevel: level,
+      levelNumber: nextLevelNum,
       rectangles: [],
       activeDraw: null,
       elapsedTime: 0,
@@ -188,6 +368,8 @@ export const useGameStore = create((set, get) => ({
       redoStack: []
     });
     
+    saveLevelNumberToStorage(nextLevelNum);
+    saveCurrentSession(get());
     get().startTimer();
   },
 
@@ -212,6 +394,7 @@ export const useGameStore = create((set, get) => ({
       elapsedTime: 0,
       startTime: Date.now()
     });
+    saveCurrentSession(get());
   },
 
   // Save current state to history (for Undo)
@@ -234,6 +417,7 @@ export const useGameStore = create((set, get) => ({
       history: history.slice(0, -1),
       redoStack: [...redoStack, JSON.stringify(rectangles)]
     });
+    saveCurrentSession(get());
   },
 
   // Redo undone action
@@ -247,6 +431,7 @@ export const useGameStore = create((set, get) => ({
       redoStack: redoStack.slice(0, -1),
       history: [...history, JSON.stringify(rectangles)]
     });
+    saveCurrentSession(get());
   },
 
   // Touch/Mouse draw starts
@@ -264,8 +449,10 @@ export const useGameStore = create((set, get) => ({
 
   // Touch/Mouse drag moves
   updateDraw: (cellX, cellY) => {
-    const { activeDraw } = get();
+    const { activeDraw, soundEnabled } = get();
     if (!activeDraw) return;
+    if (activeDraw.currentX === cellX && activeDraw.currentY === cellY) return;
+
     set({
       activeDraw: {
         ...activeDraw,
@@ -273,6 +460,10 @@ export const useGameStore = create((set, get) => ({
         currentY: cellY
       }
     });
+
+    if (soundEnabled) {
+      playClickSound();
+    }
   },
 
   // Touch/Mouse draw completes
@@ -322,6 +513,12 @@ export const useGameStore = create((set, get) => ({
       activeDraw: null
     });
 
+    saveCurrentSession(get());
+
+    if (get().soundEnabled) {
+      playBounceSound();
+    }
+
     // Check if the level is won
     get().checkWinState();
   },
@@ -338,6 +535,7 @@ export const useGameStore = create((set, get) => ({
     set({
       rectangles: rectangles.filter(r => r.id !== rectId)
     });
+    saveCurrentSession(get());
   },
 
   // Check the correctness of all rectangles and see if level is fully completed
@@ -402,6 +600,14 @@ export const useGameStore = create((set, get) => ({
     }
 
     set({ gameState: 'won' });
+
+    // Save progression and register win to store
+    saveLevelNumberToStorage(get().levelNumber + 1);
+    saveCurrentSession(get());
+
+    if (get().soundEnabled) {
+      playVictorySound();
+    }
 
     // Save progress if this is a campaign level
     if (currentLevel.id && !currentLevel.isEndless) {

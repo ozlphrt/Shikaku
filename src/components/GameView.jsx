@@ -23,20 +23,7 @@ export default function GameView() {
       {/* Upper header */}
       <GameHeader />
 
-      {/* Level Info Header Card */}
-      <div className="level-info-card glass-panel">
-        <div>
-          <h2 className="level-name">{currentLevel.name}</h2>
-          <span className="level-grid-dimensions">
-            {currentLevel.isEndless ? 'Procedural Grid' : 'Campaign Puzzle'}
-          </span>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <span className="level-grid-dimensions" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-            {currentLevel.gridSize.rows} × {currentLevel.gridSize.cols}
-          </span>
-        </div>
-      </div>
+
 
       {/* The Game Board */}
       <ShikakuGrid />
