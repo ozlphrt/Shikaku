@@ -112,31 +112,42 @@ export default function ShikakuGrid() {
   const { rows, cols } = currentLevel.gridSize;
   const { numbers } = currentLevel;
 
+  // Helper to find the row/col coordinates from a screen touch event
+  const getGridCoordsFromTouch = (touch) => {
+    const gridEl = document.querySelector('.shikaku-grid-element');
+    if (!gridEl) return null;
+    
+    const rect = gridEl.getBoundingClientRect();
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
+    
+    const cellWidth = rect.width / cols;
+    const cellHeight = rect.height / rows;
+    
+    const x = Math.floor(touchX / cellWidth);
+    const y = Math.floor(touchY / cellHeight);
+    
+    if (x >= 0 && x < cols && y >= 0 && y < rows) {
+      return { x, y };
+    }
+    return null;
+  };
+
   // Touch handlers to track cell under drag finger
   const handleTouchStart = (e) => {
     const touch = e.touches[0];
-    const elem = document.elementFromPoint(touch.clientX, touch.clientY);
-    const cell = elem ? elem.closest('.shikaku-cell') : null;
-    if (cell) {
-      const x = parseInt(cell.dataset.x, 10);
-      const y = parseInt(cell.dataset.y, 10);
-      startDraw(x, y);
+    const coords = getGridCoordsFromTouch(touch);
+    if (coords) {
+      startDraw(coords.x, coords.y);
     }
   };
 
   const handleTouchMove = (e) => {
     if (!activeDraw) return;
     const touch = e.touches[0];
-    const elem = document.elementFromPoint(touch.clientX, touch.clientY);
-    const cell = elem ? elem.closest('.shikaku-cell') : null;
-    if (cell) {
-      const x = parseInt(cell.dataset.x, 10);
-      const y = parseInt(cell.dataset.y, 10);
-      
-      // Ensure coords are in bounds
-      if (x >= 0 && x < cols && y >= 0 && y < rows) {
-        updateDraw(x, y);
-      }
+    const coords = getGridCoordsFromTouch(touch);
+    if (coords) {
+      updateDraw(coords.x, coords.y);
     }
   };
 
