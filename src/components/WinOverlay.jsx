@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { CAMPAIGN_PACKS } from '../data/campaignLevels';
-import { Clock, ArrowRight, RotateCcw } from 'lucide-react';
+import { Clock, ArrowRight, RotateCcw, Eye, EyeOff } from 'lucide-react';
+
 export default function WinOverlay() {
+  const [minimized, setMinimized] = useState(false);
   const currentPack = useGameStore(state => state.currentPack);
   const currentLevelIndex = useGameStore(state => state.currentLevelIndex);
   const currentLevel = useGameStore(state => state.currentLevel);
@@ -52,7 +54,28 @@ export default function WinOverlay() {
   };
 
   return (
-    <div className="win-overlay-container">
+    <div className={`win-overlay-container ${minimized ? 'minimized' : ''}`}>
+      {/* Floating Restore Button (rendered only when minimized) */}
+      {minimized && (
+        <button 
+          className="glass-button glass-button-primary restore-win-btn fade-in"
+          onClick={() => setMinimized(false)}
+          style={{
+            position: 'absolute',
+            bottom: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            pointerEvents: 'auto',
+            zIndex: 99999,
+            boxShadow: '0 0 20px var(--theme-accent-glow)',
+            animation: 'fadeIn 0.3s ease forwards'
+          }}
+        >
+          <EyeOff size={16} />
+          <span>Show Results Panel</span>
+        </button>
+      )}
+
       <div className="win-card glass-panel">
         <h2 className="win-title">Level Cleared!</h2>
         
@@ -80,10 +103,18 @@ export default function WinOverlay() {
             </button>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', width: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', width: '100%' }}>
             <button className="glass-button" onClick={resetLevel} style={{ width: '100%' }}>
               <RotateCcw size={16} />
-              <span>Retry Level</span>
+              <span>Retry</span>
+            </button>
+            <button 
+              className="glass-button" 
+              onClick={() => setMinimized(true)} 
+              style={{ width: '100%', border: '1px dashed rgba(255,255,255,0.15)' }}
+            >
+              <Eye size={16} />
+              <span>Inspect</span>
             </button>
           </div>
         </div>

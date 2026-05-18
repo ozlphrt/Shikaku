@@ -282,7 +282,7 @@ body.light-theme {
 .board-outer-container {
   width: 100%;
   aspect-ratio: 1 / 1;
-  max-width: min(420px, 92vw, 47vh); /* Guarantee grid fits in tight iOS browser heights */
+  max-width: min(400px, 90vw, 42vh); /* Guarantee grid fits in tight iOS browser heights */
   padding: 6px;
   position: relative;
   overflow: hidden;
