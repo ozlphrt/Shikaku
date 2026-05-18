@@ -2,7 +2,7 @@
   "name": "shikaku",
   "private": true,
   "homepage": "https://ozlphrt.github.io/Shikaku",
-  "version": "2.8.5",
+  "version": "2.8.6",
   "type": "module",
   "scripts": {
     "dev": "vite",

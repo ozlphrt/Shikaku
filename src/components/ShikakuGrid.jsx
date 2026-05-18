@@ -118,19 +118,20 @@ const CommittedRectangles = React.memo(function CommittedRectangles({ rectStates
           const val = getRectangleColor(rect, numbers);
           if (val !== null) {
             const baseColor = getColorForClue(val, 1);
-            const transparentBgColor = getColorForClue(val, 0.15);
-            const glowColor = getColorForClue(val, 0.4);
+            const startBgColor = getColorForClue(val, 0.22);
+            const endBgColor = getColorForClue(val, 0.06);
+            const glowColor = getColorForClue(val, 0.45);
 
             customStyles = {
               ...styles,
               borderColor: baseColor,
-              background: `linear-gradient(135deg, rgba(0,0,0,0.72) 0%, ${transparentBgColor} 100%)`,
+              background: `linear-gradient(135deg, ${startBgColor} 0%, ${endBgColor} 100%)`,
               boxShadow: `
-                0 12px 28px rgba(0, 0, 0, 0.55), 
-                0 4px 10px rgba(0, 0, 0, 0.25),
-                inset 2.5px 2.5px 0px rgba(255, 255, 255, 0.35), 
-                inset -2.5px -2.5px 0px rgba(0, 0, 0, 0.5),
-                inset 0 0 20px ${glowColor}
+                0 12px 28px rgba(0, 0, 0, 0.45), 
+                0 4px 10px rgba(0, 0, 0, 0.2),
+                inset 2.5px 2.5px 0px rgba(255, 255, 255, 0.25), 
+                inset -2.5px -2.5px 0px rgba(0, 0, 0, 0.35),
+                inset 0 0 24px ${glowColor}
               `
             };
           }
