@@ -16,7 +16,7 @@ body.light-theme {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
   flex: 1;
 }
 
@@ -256,7 +256,7 @@ body.light-theme {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -282,10 +282,11 @@ body.light-theme {
 .board-outer-container {
   width: 100%;
   aspect-ratio: 1 / 1;
-  max-width: 420px;
-  padding: 8px;
+  max-width: min(420px, 92vw, 47vh); /* Guarantee grid fits in tight iOS browser heights */
+  padding: 6px;
   position: relative;
   overflow: hidden;
+  margin: 0 auto;
 }
 
 .board-grid-wrapper {

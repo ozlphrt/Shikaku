@@ -225,7 +225,7 @@ export const useGameStore = create((set, get) => ({
   })(),
   isSettingsOpen: false,
   levelNumber: initialLevelNumber, // Track saved sequential level progression
-  appVersion: '1.2.0',
+  appVersion: '1.3.0',
   updateAvailable: false,
 
   checkAppVersion: async () => {
