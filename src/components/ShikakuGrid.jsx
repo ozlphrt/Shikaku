@@ -156,6 +156,58 @@ const CommittedRectangles = React.memo(function CommittedRectangles({ rectStates
   );
 });
 
+const ClueNumbersOverlay = React.memo(function ClueNumbersOverlay({ numbers, cols, rows, cellStateMap }) {
+  const colorByNumber = useGameStore(state => state.colorByNumber);
+
+  return (
+    <>
+      {numbers.map((number) => {
+        const state = cellStateMap[number.y]?.[number.x];
+        const isSatisfied = state === 'satisfied';
+        const isError = state === 'error';
+        const clueColor = getColorForClue(number.value, 65, 1);
+
+        const left = `calc(${(number.x / cols) * 100}% + 3.5px)`;
+        const top = `calc(${(number.y / rows) * 100}% + 3.5px)`;
+        const width = `calc(${(1 / cols) * 100}% - 7px)`;
+        const height = `calc(${(1 / rows) * 100}% - 7px)`;
+
+        return (
+          <div
+            key={`${number.y}-${number.x}`}
+            style={{
+              position: 'absolute',
+              left,
+              top,
+              width,
+              height,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+              zIndex: 18,
+            }}
+          >
+            <div
+              className={`cell-number-container ${
+                isSatisfied ? 'cell-number-satisfied pulse-satisfied' : ''
+              } ${
+                isError ? 'cell-number-error shake-error' : ''
+              }`}
+              style={colorByNumber ? {
+                color: clueColor,
+                textShadow: `0 0 10px ${clueColor}`,
+              } : {}}
+            >
+              {number.value}
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
+});
+
 export default function ShikakuGrid() {
   const currentLevel = useGameStore(state => state.currentLevel);
   const rectangles = useGameStore(state => state.rectangles);
@@ -438,7 +490,6 @@ export default function ShikakuGrid() {
           key={`${r}-${c}`}
           x={c}
           y={r}
-          number={number}
           rectState={getCellRectState(c, r)}
           isLastRow={r === rows - 1}
           isLastCol={c === cols - 1}
@@ -505,6 +556,14 @@ export default function ShikakuGrid() {
           rows={rows} 
           removeRectangle={removeRectangle} 
           numbers={currentLevel?.numbers}
+        />
+
+        {/* Render absolute clue numbers above committed rectangles to fix Safari/iPhone stacking box isolation */}
+        <ClueNumbersOverlay 
+          numbers={numbers} 
+          cols={cols} 
+          rows={rows} 
+          cellStateMap={cellStateMap} 
         />
 
         {/* Render active touch draw boundary */}
