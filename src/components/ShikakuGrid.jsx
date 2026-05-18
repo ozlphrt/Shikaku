@@ -89,7 +89,8 @@ const getCachedDominoTileStyles = (rect, cols, rows) => {
 // Stable value-based color generator using the Golden Angle (137.5 degrees)
 const getColorForClue = (value, lightness = 65, opacity = 1) => {
   const hue = Math.floor((value * 137.5) % 360);
-  return opacity === 1 ? `hsl(${hue}, 92%, ${lightness}%)` : `hsla(${hue}, 92%, ${lightness}%, ${opacity})`;
+  // Using 64% saturation for soft, classy, and curated premium palette (no super-brights!)
+  return opacity === 1 ? `hsl(${hue}, 64%, ${lightness}%)` : `hsla(${hue}, 64%, ${lightness}%, ${opacity})`;
 };
 
 // Find color for a rectangle based on any number clues inside its bounds
@@ -117,10 +118,10 @@ const CommittedRectangles = React.memo(function CommittedRectangles({ rectStates
         if (colorByNumber && state === 'satisfied') {
           const val = getRectangleColor(rect, numbers);
           if (val !== null) {
-            const baseColor = getColorForClue(val, 65, 1);
+            const baseColor = getColorForClue(val, 44, 1);
             const startBgColor = getColorForClue(val, 28, 0.94);
             const endBgColor = getColorForClue(val, 20, 0.86);
-            const glowColor = getColorForClue(val, 45, 0.5);
+            const glowColor = getColorForClue(val, 32, 0.45);
 
             customStyles = {
               ...styles,
@@ -165,7 +166,8 @@ const ClueNumbersOverlay = React.memo(function ClueNumbersOverlay({ numbers, col
         const state = cellStateMap[number.y]?.[number.x];
         const isSatisfied = state === 'satisfied';
         const isError = state === 'error';
-        const clueColor = getColorForClue(number.value, 65, 1);
+        // Elegant, solid, dark 44% lightness HSL for perfect readability
+        const clueColor = getColorForClue(number.value, 44, 1);
 
         const left = `calc(${(number.x / cols) * 100}% + 3.5px)`;
         const top = `calc(${(number.y / rows) * 100}% + 3.5px)`;
@@ -196,8 +198,12 @@ const ClueNumbersOverlay = React.memo(function ClueNumbersOverlay({ numbers, col
               }`}
               style={colorByNumber ? {
                 color: clueColor,
-                textShadow: `0 0 10px ${clueColor}`,
-              } : {}}
+                fontWeight: 900,
+                textShadow: `1.5px 1.5px 0px rgba(0, 0, 0, 0.95), -0.5px -0.5px 0px rgba(0, 0, 0, 0.4), 1px 2px 3px rgba(0, 0, 0, 0.65)`,
+              } : {
+                fontWeight: 900,
+                textShadow: `1.5px 1.5px 0px rgba(0, 0, 0, 0.95), -0.5px -0.5px 0px rgba(0, 0, 0, 0.4), 1px 2px 3px rgba(0, 0, 0, 0.65)`,
+              }}
             >
               {number.value}
             </div>
@@ -490,6 +496,7 @@ export default function ShikakuGrid() {
           key={`${r}-${c}`}
           x={c}
           y={r}
+          hasNumber={!!number}
           rectState={getCellRectState(c, r)}
           isLastRow={r === rows - 1}
           isLastCol={c === cols - 1}

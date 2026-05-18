@@ -3,6 +3,7 @@ import React from 'react';
 const GridCell = React.memo(function GridCell({
   x,
   y,
+  hasNumber,
   rectState, // 'satisfied' | 'error' | 'incomplete' | null
   isLastRow,
   isLastCol
@@ -13,8 +14,8 @@ const GridCell = React.memo(function GridCell({
       data-x={x}
       data-y={y}
     >
-      {/* Show subtle dot guide for empty cells if not covered by a committed rectangle */}
-      {!rectState && <div className="cell-dot" />}
+      {/* Show subtle dot guide for empty cells if not covered by a committed rectangle and not a number clue cell */}
+      {!rectState && !hasNumber && <div className="cell-dot" />}
     </div>
   );
 });
