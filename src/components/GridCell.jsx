@@ -27,6 +27,7 @@ const GridCell = React.memo(function GridCell({
       className={`shikaku-cell ${isLastRow ? 'shikaku-cell-in-last-row' : ''} ${isLastCol ? 'shikaku-cell-in-last-col' : ''}`}
       data-x={x}
       data-y={y}
+      style={number ? { zIndex: 16 } : {}}
     >
       {number ? (
         <div 

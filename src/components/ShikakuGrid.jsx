@@ -87,9 +87,9 @@ const getCachedDominoTileStyles = (rect, cols, rows) => {
 };
 
 // Stable value-based color generator using the Golden Angle (137.5 degrees)
-const getColorForClue = (value, opacity = 1) => {
+const getColorForClue = (value, lightness = 65, opacity = 1) => {
   const hue = Math.floor((value * 137.5) % 360);
-  return opacity === 1 ? `hsl(${hue}, 92%, 65%)` : `hsla(${hue}, 92%, 65%, ${opacity})`;
+  return opacity === 1 ? `hsl(${hue}, 92%, ${lightness}%)` : `hsla(${hue}, 92%, ${lightness}%, ${opacity})`;
 };
 
 // Find color for a rectangle based on any number clues inside its bounds
@@ -117,10 +117,10 @@ const CommittedRectangles = React.memo(function CommittedRectangles({ rectStates
         if (colorByNumber && state === 'satisfied') {
           const val = getRectangleColor(rect, numbers);
           if (val !== null) {
-            const baseColor = getColorForClue(val, 1);
-            const startBgColor = getColorForClue(val, 0.22);
-            const endBgColor = getColorForClue(val, 0.06);
-            const glowColor = getColorForClue(val, 0.45);
+            const baseColor = getColorForClue(val, 65, 1);
+            const startBgColor = getColorForClue(val, 28, 0.94);
+            const endBgColor = getColorForClue(val, 20, 0.86);
+            const glowColor = getColorForClue(val, 45, 0.5);
 
             customStyles = {
               ...styles,
