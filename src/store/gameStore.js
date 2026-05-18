@@ -225,7 +225,7 @@ export const useGameStore = create((set, get) => ({
   })(),
   isSettingsOpen: false,
   levelNumber: initialLevelNumber, // Track saved sequential level progression
-  appVersion: '1.6.0',
+  appVersion: '1.7.0',
   updateAvailable: false,
 
   checkAppVersion: async () => {
@@ -354,6 +354,7 @@ export const useGameStore = create((set, get) => ({
     });
     
     get().startTimer();
+    get().checkAppVersion();
   },
 
   // Load an Endless Mode / Custom Level
@@ -388,6 +389,7 @@ export const useGameStore = create((set, get) => ({
     saveLevelNumberToStorage(nextLevelNum);
     saveCurrentSession(get());
     get().startTimer();
+    get().checkAppVersion();
   },
 
   // Go back to the main menu
@@ -454,6 +456,22 @@ export const useGameStore = create((set, get) => ({
   // Touch/Mouse draw starts
   startDraw: (cellX, cellY) => {
     if (get().gameState !== 'playing') return;
+    
+    const { rectangles } = get();
+    // Check if there is an existing rectangle covering the starting cell (cellX, cellY)
+    const coveringRect = rectangles.find(r => 
+      cellX >= r.x && cellX < r.x + r.w &&
+      cellY >= r.y && cellY < r.y + r.h
+    );
+
+    if (coveringRect) {
+      get().pushToHistory();
+      set({
+        rectangles: rectangles.filter(r => r.id !== coveringRect.id)
+      });
+      saveCurrentSession(get());
+    }
+
     set({
       activeDraw: {
         startX: cellX,
