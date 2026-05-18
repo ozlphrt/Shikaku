@@ -87,6 +87,26 @@ export default function ShikakuGrid() {
 
   const gridRef = useRef(null);
 
+  // Prevent elastic scrolling/bounce on iOS Safari while drawing/dragging
+  useEffect(() => {
+    const wrapper = gridRef.current;
+    if (!wrapper) return;
+
+    const preventDefaultScroll = (e) => {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    };
+
+    wrapper.addEventListener('touchstart', preventDefaultScroll, { passive: false });
+    wrapper.addEventListener('touchmove', preventDefaultScroll, { passive: false });
+
+    return () => {
+      wrapper.removeEventListener('touchstart', preventDefaultScroll);
+      wrapper.removeEventListener('touchmove', preventDefaultScroll);
+    };
+  }, []);
+
   if (!currentLevel) return null;
 
   const { rows, cols } = currentLevel.gridSize;

@@ -844,3 +844,20 @@ body.light-theme {
   50% { transform: scale(1.15); opacity: 0.7; }
   100% { transform: scale(1); opacity: 1; }
 }
+
+/* Fluid board scaling on short vertical viewports (like iPhone Safari toolbars active) */
+@media (max-height: 780px) {
+  .board-outer-container {
+    max-width: 350px !important;
+  }
+}
+@media (max-height: 720px) {
+  .board-outer-container {
+    max-width: 310px !important;
+  }
+}
+@media (max-height: 660px) {
+  .board-outer-container {
+    max-width: 280px !important;
+  }
+}
