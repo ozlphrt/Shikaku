@@ -90,42 +90,42 @@ const getSizeForLevel = (levelNum) => {
 const getDifficultyForLevel = (levelNum) => {
   const size = getSizeForLevel(levelNum);
   let minArea = 2;
-  let maxArea = 16;
-  let splitProb = 0.75;
+  let maxArea = 8;
+  let splitProb = 0.82;
 
   if (size <= 5) {
     minArea = 2;
-    maxArea = 6;
-    splitProb = 0.85;
+    maxArea = 4;
+    splitProb = 0.88;
   } else if (size === 6) {
     minArea = 2;
-    maxArea = 8;
-    splitProb = 0.80;
+    maxArea = 6;
+    splitProb = 0.85;
   } else if (size === 7) {
-    minArea = 3;
-    maxArea = 10;
-    splitProb = 0.75;
+    minArea = 2;
+    maxArea = 8;
+    splitProb = 0.83;
   } else if (size === 8) {
+    minArea = 2;
+    maxArea = 9;
+    splitProb = 0.82;
+  } else if (size === 9) {
+    minArea = 2;
+    maxArea = 10;
+    splitProb = 0.80;
+  } else if (size === 10) {
+    minArea = 2;
+    maxArea = 12;
+    splitProb = 0.78;
+  } else if (size === 11) {
     minArea = 3;
     maxArea = 12;
-    splitProb = 0.72;
-  } else if (size === 9) {
-    minArea = 4;
-    maxArea = 14;
-    splitProb = 0.70;
-  } else if (size === 10) {
-    minArea = 4;
-    maxArea = 16;
-    splitProb = 0.68;
-  } else if (size === 11) {
-    minArea = 4;
-    maxArea = 18;
-    splitProb = 0.66;
+    splitProb = 0.78;
   } else {
     // 12x12
-    minArea = 5;
-    maxArea = 20;
-    splitProb = 0.65;
+    minArea = 3;
+    maxArea = 12;
+    splitProb = 0.76;
   }
 
   return { minArea, maxArea, splitProb, size };
@@ -252,7 +252,7 @@ export const useGameStore = create((set, get) => ({
   })(),
   isSettingsOpen: false,
   levelNumber: initialLevelNumber, // Track saved sequential level progression
-  appVersion: '1.9.0',
+  appVersion: '2.0.0',
   updateAvailable: false,
 
   checkAppVersion: async () => {
