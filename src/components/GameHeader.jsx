@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { Clock, Star, Settings } from 'lucide-react';
+import { Clock, Star, Settings, Award } from 'lucide-react';
 
 export default function GameHeader() {
   const elapsedTime = useGameStore(state => state.elapsedTime);
   const currentLevel = useGameStore(state => state.currentLevel);
+  const moveCount = useGameStore(state => state.moveCount);
 
   // Format seconds to mm:ss
   const formatTime = (secs) => {
@@ -13,6 +14,23 @@ export default function GameHeader() {
     return `${m}:${s}`;
   };
 
+  // Calculate live score
+  let liveScore = 0;
+  if (currentLevel && currentLevel.numbers) {
+    const { rows, cols } = currentLevel.gridSize;
+    const cellCount = rows * cols;
+    const perfectMoves = currentLevel.numbers.length;
+    
+    const baseScore = cellCount * 40;
+    const extraMoves = Math.max(0, moveCount - perfectMoves);
+    const accuracyMultiplier = Math.max(0.5, 1.0 - (extraMoves * 0.05));
+    
+    const parTime = cellCount * 1.2;
+    const timeUnderPar = Math.max(0, parTime - elapsedTime);
+    const timeBonus = Math.floor(timeUnderPar * 15);
+    
+    liveScore = Math.floor((baseScore * accuracyMultiplier) + timeBonus);
+  }
 
   return (
     <div className="game-header glass-panel" style={{ position: 'relative' }}>
@@ -26,7 +44,7 @@ export default function GameHeader() {
         </span>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
         {/* Settings Button */}
         <button 
           onClick={(e) => {
@@ -57,6 +75,11 @@ export default function GameHeader() {
         <div className="timer-pill" style={{ height: '32px', display: 'flex', alignItems: 'center' }}>
           <Clock size={15} />
           <span>{formatTime(elapsedTime)}</span>
+        </div>
+
+        <div className="timer-pill" style={{ height: '32px', display: 'flex', alignItems: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+          <Star size={15} fill="#10b981" />
+          <span style={{ fontWeight: 800 }}>{liveScore.toLocaleString()}</span>
         </div>
       </div>
     </div>

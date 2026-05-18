@@ -275,7 +275,7 @@ export const useGameStore = create((set, get) => ({
   starsEarned: loadStarsFromStorage(),
   moveCount: 0,
   lastScoreData: null,
-  appVersion: '2.7.0',
+  appVersion: '2.7.1',
   updateAvailable: false,
 
   checkAppVersion: async () => {
