@@ -36,9 +36,7 @@ export default function GameHeader() {
     <div className="game-header glass-panel" style={{ position: 'relative' }}>
 
       <div className="header-title" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0px' }}>
-        <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.65, color: 'var(--text-secondary)', background: 'none', WebkitTextFillColor: 'initial' }}>
-          {currentLevel?.isEndless ? 'Procedural' : 'Campaign'} • {currentLevel?.gridSize.rows}×{currentLevel?.gridSize.cols}
-        </span>
+
         <span style={{ fontSize: '18px', fontWeight: '800', marginTop: '-2px', background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           {currentLevel?.name || 'SHIKAKU'}
         </span>

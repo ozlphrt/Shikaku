@@ -91,41 +91,41 @@ const getDifficultyForLevel = (levelNum) => {
   const size = getSizeForLevel(levelNum);
   let minArea = 2;
   let maxArea = 8;
-  let splitProb = 0.82;
+  let splitProb = 0.62;
 
   if (size <= 5) {
     minArea = 2;
-    maxArea = 4;
-    splitProb = 0.88;
+    maxArea = 8;
+    splitProb = 0.62;
   } else if (size === 6) {
     minArea = 2;
-    maxArea = 6;
-    splitProb = 0.85;
+    maxArea = 12;
+    splitProb = 0.58;
   } else if (size === 7) {
     minArea = 2;
-    maxArea = 8;
-    splitProb = 0.83;
+    maxArea = 16;
+    splitProb = 0.54;
   } else if (size === 8) {
     minArea = 2;
-    maxArea = 9;
-    splitProb = 0.82;
+    maxArea = 18;
+    splitProb = 0.50;
   } else if (size === 9) {
     minArea = 2;
-    maxArea = 10;
-    splitProb = 0.80;
+    maxArea = 20;
+    splitProb = 0.48;
   } else if (size === 10) {
     minArea = 2;
-    maxArea = 12;
-    splitProb = 0.78;
+    maxArea = 24;
+    splitProb = 0.45;
   } else if (size === 11) {
     minArea = 3;
-    maxArea = 12;
-    splitProb = 0.78;
+    maxArea = 28;
+    splitProb = 0.42;
   } else {
     // 12x12
     minArea = 3;
-    maxArea = 12;
-    splitProb = 0.76;
+    maxArea = 36;
+    splitProb = 0.40;
   }
 
   return { minArea, maxArea, splitProb, size };
@@ -275,7 +275,7 @@ export const useGameStore = create((set, get) => ({
   starsEarned: loadStarsFromStorage(),
   moveCount: 0,
   lastScoreData: null,
-  appVersion: '2.7.1',
+  appVersion: '2.8.0',
   updateAvailable: false,
 
   checkAppVersion: async () => {
