@@ -236,6 +236,26 @@ const savePaletteToStorage = (palette) => {
   }
 };
 
+// Load stars from localStorage
+const loadStarsFromStorage = () => {
+  try {
+    const saved = localStorage.getItem('shikaku_stars_earned');
+    if (saved) return JSON.parse(saved);
+  } catch (e) {
+    console.error('Failed to load stars from localStorage', e);
+  }
+  return {};
+};
+
+// Save stars to localStorage
+const saveStarsToStorage = (starsEarned) => {
+  try {
+    localStorage.setItem('shikaku_stars_earned', JSON.stringify(starsEarned));
+  } catch (e) {
+    console.error('Failed to save stars to localStorage', e);
+  }
+};
+
 export const useGameStore = create((set, get) => ({
   // Navigation & Game State
   gameState: initialGameState, // Resume previous game state (playing/won) on startup
@@ -252,7 +272,10 @@ export const useGameStore = create((set, get) => ({
   })(),
   isSettingsOpen: false,
   levelNumber: initialLevelNumber, // Track saved sequential level progression
-  appVersion: '2.6.0',
+  starsEarned: loadStarsFromStorage(),
+  moveCount: 0,
+  lastScoreData: null,
+  appVersion: '2.7.0',
   updateAvailable: false,
 
   checkAppVersion: async () => {
@@ -386,7 +409,9 @@ export const useGameStore = create((set, get) => ({
       elapsedTime: 0,
       startTime: Date.now(),
       history: [],
-      redoStack: []
+      redoStack: [],
+      moveCount: 0,
+      lastScoreData: null
     });
     
     get().startTimer();
@@ -419,7 +444,9 @@ export const useGameStore = create((set, get) => ({
       elapsedTime: 0,
       startTime: Date.now(),
       history: [],
-      redoStack: []
+      redoStack: [],
+      moveCount: 0,
+      lastScoreData: null
     });
     
     saveLevelNumberToStorage(nextLevelNum);
@@ -447,7 +474,9 @@ export const useGameStore = create((set, get) => ({
       history: [],
       redoStack: [],
       elapsedTime: 0,
-      startTime: Date.now()
+      startTime: Date.now(),
+      moveCount: 0,
+      lastScoreData: null
     });
     saveCurrentSession(get());
   },
@@ -653,24 +682,61 @@ export const useGameStore = create((set, get) => ({
     // If we made it here, the puzzle is perfectly solved!
     get().stopTimer();
     
-    // Calculate star rating (1 to 3 stars based on solving speed relative to grid complexity)
+    // Calculate final score using Hybrid Math
     const timeSpent = get().elapsedTime;
-    let stars = 3;
+    const { moveCount, starsEarned } = get();
     const cellCount = rows * cols;
-
-    // Time thresholds for stars:
-    // e.g. 5x5 (25 cells) -> < 15s (3 stars), < 40s (2 stars), else 1 star
-    // Scale by total cell count
-    const threeStarThreshold = cellCount * 0.8;
-    const twoStarThreshold = cellCount * 2.2;
-
-    if (timeSpent > twoStarThreshold) {
-      stars = 1;
-    } else if (timeSpent > threeStarThreshold) {
-      stars = 2;
+    const perfectMoves = numbers.length;
+    
+    // Base Score: (rows * cols) * 40
+    const baseScore = cellCount * 40;
+    
+    // Accuracy Multiplier: drops by 0.05 for every extra move over perfectMoves
+    const extraMoves = Math.max(0, moveCount - perfectMoves);
+    const accuracyMultiplier = Math.max(0.5, 1.0 - (extraMoves * 0.05));
+    
+    // Par Time: cellCount * 1.2s
+    const parTime = cellCount * 1.2;
+    const timeUnderPar = Math.max(0, parTime - timeSpent);
+    const timeBonus = Math.floor(timeUnderPar * 15);
+    
+    // Final Score
+    const finalScore = Math.floor((baseScore * accuracyMultiplier) + timeBonus);
+    
+    // Calculate Star Rating
+    let stars = 1;
+    if (accuracyMultiplier === 1.0 && timeBonus > 0) {
+      stars = 3; // Flawless and Fast
+    } else if (finalScore >= baseScore * 0.7) {
+      stars = 2; // Great
     }
+    
+    // Update global starsEarned
+    const levelId = currentLevel.id || `level_${get().levelNumber}`;
+    const prevStars = starsEarned[levelId] || 0;
+    const newStarsEarned = {
+      ...starsEarned,
+      [levelId]: Math.max(prevStars, stars)
+    };
+    saveStarsToStorage(newStarsEarned);
 
-    set({ gameState: 'won' });
+    const lastScoreData = {
+      baseScore,
+      accuracyMultiplier,
+      timeBonus,
+      finalScore,
+      stars,
+      moveCount,
+      perfectMoves,
+      parTime,
+      timeSpent
+    };
+
+    set({ 
+      gameState: 'won', 
+      starsEarned: newStarsEarned,
+      lastScoreData 
+    });
 
     // Save progression and register win to store
     saveLevelNumberToStorage(get().levelNumber + 1);

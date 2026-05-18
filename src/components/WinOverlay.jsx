@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { CAMPAIGN_PACKS } from '../data/campaignLevels';
-import { Clock, ArrowRight, RotateCcw, Eye, EyeOff } from 'lucide-react';
+import { Clock, ArrowRight, RotateCcw, Eye, EyeOff, Star } from 'lucide-react';
 
 export default function WinOverlay() {
   const [minimized, setMinimized] = useState(false);
@@ -9,6 +9,15 @@ export default function WinOverlay() {
   const currentLevelIndex = useGameStore(state => state.currentLevelIndex);
   const currentLevel = useGameStore(state => state.currentLevel);
   const elapsedTime = useGameStore(state => state.elapsedTime);
+  const lastScoreData = useGameStore(state => state.lastScoreData);
+  
+  const { 
+    finalScore = 0, 
+    stars = 1, 
+    baseScore = 0, 
+    accuracyMultiplier = 1, 
+    timeBonus = 0 
+  } = lastScoreData || {};
   
   const resetLevel = useGameStore(state => state.resetLevel);
   const loadCampaignLevel = useGameStore(state => state.loadCampaignLevel);
@@ -79,14 +88,46 @@ export default function WinOverlay() {
       <div className="win-card glass-panel">
         <h2 className="win-title">Level Cleared!</h2>
         
-        {/* Luminous Solving Time Readout */}
-        <div className="win-stat-box" style={{ width: '100%', margin: '4px 0 8px 0' }}>
-          <div className="win-stat-label" style={{ fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '4px', opacity: 0.6 }}>
-            Solving Time
+        {/* Glowing Stars Display */}
+        <div className="win-stars-container" style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center' }}>
+          {[1, 2, 3].map(starNum => (
+            <Star 
+              key={starNum}
+              size={36} 
+              fill={starNum <= stars ? '#10b981' : 'transparent'} 
+              color={starNum <= stars ? '#10b981' : 'var(--glass-border)'}
+              style={{
+                filter: starNum <= stars ? 'drop-shadow(0 0 12px rgba(16, 185, 129, 0.8))' : 'none',
+                transform: starNum === 2 ? 'scale(1.1) translateY(-4px)' : 'scale(1)',
+                transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Massive Final Score */}
+        <div className="win-score-display" style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '2px' }}>Final Score</div>
+          <div style={{ fontSize: '42px', fontWeight: '900', color: '#10b981', textShadow: '0 0 20px rgba(16, 185, 129, 0.5)', lineHeight: 1 }}>
+            {finalScore.toLocaleString()}
           </div>
-          <div className="win-stat-val" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '24px', fontWeight: '800', color: '#10b981' }}>
-            <Clock size={20} style={{ color: '#10b981' }} />
-            <span>{formatTime(elapsedTime)}</span>
+        </div>
+
+        {/* Score Breakdown (Grid) */}
+        <div className="win-stat-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px', width: '100%' }}>
+          <div className="win-stat-box" style={{ background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '8px' }}>
+            <div style={{ fontSize: '10px', opacity: 0.6, textTransform: 'uppercase' }}>Time</div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: '#fff' }}>{formatTime(elapsedTime)}</div>
+          </div>
+          <div className="win-stat-box" style={{ background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '8px' }}>
+            <div style={{ fontSize: '10px', opacity: 0.6, textTransform: 'uppercase' }}>Accuracy</div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: accuracyMultiplier === 1 ? '#10b981' : '#f59e0b' }}>
+              {accuracyMultiplier.toFixed(2)}x
+            </div>
+          </div>
+          <div className="win-stat-box" style={{ background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '8px', gridColumn: '1 / -1', display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '12px', opacity: 0.6 }}>Time Bonus:</span>
+            <span style={{ fontSize: '14px', fontWeight: '700', color: timeBonus > 0 ? '#10b981' : '#fff' }}>+{timeBonus}</span>
           </div>
         </div>
 

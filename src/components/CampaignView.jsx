@@ -8,6 +8,7 @@ export default function CampaignView() {
   const loadCampaignLevel = useGameStore(state => state.loadCampaignLevel);
   const loadEndlessLevel = useGameStore(state => state.loadEndlessLevel);
   const levelNumber = useGameStore(state => state.levelNumber);
+  const starsEarned = useGameStore(state => state.starsEarned);
 
   // Track which section is expanded ('easy', 'medium', 'hard', 'endless')
   const [expandedSection, setExpandedSection] = useState('easy');
@@ -140,7 +141,7 @@ export default function CampaignView() {
                   {pack.levels.map((level, idx) => {
                     const unlocked = isLevelUnlocked(pack.id, idx);
                     const record = campaignProgress.completedLevels[level.id];
-                    const starsWon = record ? record.stars : 0;
+                    const starsWon = starsEarned[level.id] || (record ? record.stars : 0);
 
                     return (
                       <button
@@ -165,7 +166,11 @@ export default function CampaignView() {
                                   key={s} 
                                   size={7} 
                                   className={`level-star ${s <= starsWon ? 'active' : 'inactive'}`}
-                                  fill={s <= starsWon ? '#fbbf24' : 'none'}
+                                  fill={s <= starsWon ? '#10b981' : 'none'}
+                                  color={s <= starsWon ? '#10b981' : 'currentColor'}
+                                  style={{
+                                    filter: s <= starsWon ? 'drop-shadow(0 0 3px rgba(16, 185, 129, 0.6))' : 'none'
+                                  }}
                                 />
                               ))}
                             </div>
