@@ -106,28 +106,30 @@ export default function WinOverlay() {
         </div>
 
         {/* Massive Final Score */}
-        <div className="win-score-display" style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '2px' }}>Final Score</div>
-          <div style={{ fontSize: '42px', fontWeight: '900', color: '#10b981', textShadow: '0 0 20px rgba(16, 185, 129, 0.5)', lineHeight: 1 }}>
+        <div className="win-score-display">
+          <div className="win-score-label">Final Score</div>
+          <div className="win-score-value">
             {finalScore.toLocaleString()}
           </div>
         </div>
 
         {/* Score Breakdown (Grid) */}
-        <div className="win-stat-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px', width: '100%' }}>
-          <div className="win-stat-box" style={{ background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '8px' }}>
-            <div style={{ fontSize: '10px', opacity: 0.6, textTransform: 'uppercase' }}>Time</div>
-            <div style={{ fontSize: '16px', fontWeight: '700', color: '#fff' }}>{formatTime(elapsedTime)}</div>
+        <div className="win-stat-grid">
+          <div className="win-stat-box">
+            <div className="win-stat-label">Time</div>
+            <div className="win-stat-value">{formatTime(elapsedTime)}</div>
           </div>
-          <div className="win-stat-box" style={{ background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '8px' }}>
-            <div style={{ fontSize: '10px', opacity: 0.6, textTransform: 'uppercase' }}>Accuracy</div>
-            <div style={{ fontSize: '16px', fontWeight: '700', color: accuracyMultiplier === 1 ? '#10b981' : '#f59e0b' }}>
+          <div className="win-stat-box">
+            <div className="win-stat-label">Accuracy</div>
+            <div className="win-stat-value" style={{ color: accuracyMultiplier === 1 ? 'var(--score-color, #10b981)' : '#f59e0b' }}>
               {accuracyMultiplier.toFixed(2)}x
             </div>
           </div>
-          <div className="win-stat-box" style={{ background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '8px', gridColumn: '1 / -1', display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '12px', opacity: 0.6 }}>Time Bonus:</span>
-            <span style={{ fontSize: '14px', fontWeight: '700', color: timeBonus > 0 ? '#10b981' : '#fff' }}>+{timeBonus}</span>
+          <div className="win-stat-box win-stat-box-full">
+            <span className="win-stat-label-large">Time Bonus:</span>
+            <span className="win-stat-value" style={{ color: timeBonus > 0 ? 'var(--score-color, #10b981)' : 'var(--text-primary)' }}>
+              +{timeBonus}
+            </span>
           </div>
         </div>
 

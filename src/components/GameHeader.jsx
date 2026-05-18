@@ -75,8 +75,8 @@ export default function GameHeader() {
           <span>{formatTime(elapsedTime)}</span>
         </div>
 
-        <div className="timer-pill" style={{ height: '32px', display: 'flex', alignItems: 'center', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
-          <Star size={15} fill="#10b981" />
+        <div className="timer-pill" style={{ height: '32px', display: 'flex', alignItems: 'center', background: 'rgba(16, 185, 129, 0.08)', color: 'var(--score-color, #10b981)', borderColor: 'var(--score-glow, rgba(16, 185, 129, 0.3))' }}>
+          <Star size={15} fill="var(--score-color, #10b981)" />
           <span style={{ fontWeight: 800 }}>{liveScore.toLocaleString()}</span>
         </div>
       </div>
