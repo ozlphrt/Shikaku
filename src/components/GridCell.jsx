@@ -1,12 +1,11 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
 
-// Stable value-based color generator
+// Stable value-based color generator using the Golden Angle (137.5 degrees)
 const getColorForClue = (value) => {
-  // Knuth's multiplicative hash to spread colors evenly for sequential values
-  const seed = value * 2654435761;
-  const hue = Math.abs(seed) % 360;
-  return `hsl(${hue}, 90%, 65%)`;
+  // 137.5 degrees is the golden angle, which naturally yields maximum color dispersion
+  const hue = Math.floor((value * 137.5) % 360);
+  return `hsl(${hue}, 92%, 65%)`;
 };
 
 const GridCell = React.memo(function GridCell({
